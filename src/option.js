@@ -2,9 +2,7 @@ const R = require("ramda");
 const Most = require("most");
 const dom = require("@cycle/dom");
 const { render } = require("./lib/ui");
-
-const addrP = browser.storage.local.get("addr");
-const tokenP = browser.storage.local.get("toke");
+const Store = require("./lib/store");
 
 /**
  * state: { addr, token }
@@ -14,15 +12,13 @@ const tokenLens = R.lensProp("token");
 
 const intent = source => {
     const addrValue$ = source.DOM.select(".addr")
-        .events("keyup")
+        .events("change")
         .map(e => e.target.value.trim())
-        .merge(Most.fromPromise(addrP))
     ;
 
     const tokenValue$ = source.DOM.select(".token")
-        .events("keyup")
+        .events("change")
         .map(e => e.target.value.trim())
-        .merge(Most.fromPromise(tokenP))
     ;
 
     const submitClick$ = source.DOM.select(".submit")
@@ -53,16 +49,26 @@ const model = (init$, action) => {
     };
 };
 
-const view = state$ => state$.map(_ => (
+const view = state$ => state$.map(state => (
     dom.div(".ui.segment", [
         dom.div(".ui.form", [
             dom.div(".field.required", [
                 dom.label("服务地址"),
-                dom.input(".addr", { attrs: { placeholder: "毕竟云表情" } })
+                dom.input(".addr", {
+                    attrs: {
+                        placeholder: "毕竟云表情",
+                        value: state.addr
+                    }
+                })
             ]),
             dom.div(".field.required", [
                 dom.label("邀请码"),
-                dom.input(".token", { attrs: { placeholder: "为了不必要的安全"} })
+                dom.input(".token", {
+                    attrs: {
+                        placeholder: "为了不必要的安全",
+                        value: state.token
+                    }
+                })
             ]),
 
             dom.button(".ui.blue.button.submit", "提交")
@@ -70,25 +76,19 @@ const view = state$ => state$.map(_ => (
     ])
 ));
 
-
-Promise.all([addrP, tokenP])
-    .then(([addr, token]) => {
+Store.getOption()
+    .then(state => {
         const main = source => {
             const state$ = source.state.stream;
-            const initState$ = Most.of(R.always({ addr, token }));
+            const initState$ = Most.of(R.always(state));
 
             const action = intent(source);
             const { update$, submit$ } = model(initState$, action);
 
-            state$.sampleWith(submit$).observe(state => {
-                return browser.storage.local.set(state)
-                    .then(console.log)
-                    .catch(console.error)
-                ;
-            });
+            state$.sampleWith(submit$).observe(Store.saveOption);
 
             return {
-                DOM: view(state$),
+                DOM: view(state$.tap(console.info)),
                 state: initState$.merge(update$)
             };
         };
