@@ -7,22 +7,22 @@ const SRC = path.join(CWD, "src");
 
 // readEntry :: [String] -> Object
 const readEntry = R.compose(
-    R.fromPairs,
-    R.map(name => {
-        const value = path.join(SRC, `${name}.js`);
-        return [name, value];
-    })
+	R.fromPairs,
+	R.map(name => {
+		const value = path.join(SRC, `${name}.js`);
+		return [name, value];
+	})
 );
 
 const config = {
-    mode: "none",
+	mode: "none",
 
-    entry: readEntry(["option"]),
+	entry: readEntry(["option", "sidebar"]),
 
-    output: {
-        filename: "[name].js",
-        path: path.join(CWD, "addon")
-    }
+	output: {
+		filename: "[name].js",
+		path: path.join(CWD, "addon")
+	}
 };
 
 module.exports = config;

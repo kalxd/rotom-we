@@ -8,5 +8,9 @@
     "options_ui": {
         "page": "html/option.html",
         "browser_style": false
-    }
+    },
+	"sidebar_action": {
+		"default_panel": "html/sidebar.html",
+		"default_title": "云表情"
+	}
 }

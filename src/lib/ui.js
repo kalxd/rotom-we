@@ -3,12 +3,12 @@ const { withState } = require("@cycle/state");
 const dom = require("@cycle/dom");
 
 const driver = {
-    DOM: dom.makeDOMDriver("#app")
+	DOM: dom.makeDOMDriver("#app")
 };
 
 const render = f => {
-    const main = withState(f);
-    return run(main, driver);
+	const main = withState(f);
+	return run(main, driver);
 };
 
 exports.render = render;
