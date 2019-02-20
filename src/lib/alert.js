@@ -1,42 +1,44 @@
+const R = require("ramda");
 const Most = require("most");
-const Eff = require("./effect");
-const { setup } = require("@cycle/most-run");
 const dom = require("@cycle/dom");
-const { withState } = require("@cycle/state");
-
-const mkDriver = node => ({
-	DOM: dom.makeDOMDriver(node)
-});
+const Modal = require("./modal");
+const Eff = require("./effect");
 
 // show :: String -> Stream Element
 const show = msg => {
-	const mask = Eff.showMaskWhen();
+	const modal = Modal(source => {
+		const state$ = source.state.stream;
+		const init$ = Most.of(R.always(0));
 
-	const main = source => {
-		const accept$ = source.DOM.select(".accept")
+		const view = state$.map(n => dom.div(".ui.modal.transition.visible", [
+			dom.div(".header", msg),
+			dom.div(".content", [
+				dom.button(".ui.play.button", n)
+			]),
+			dom.div(".actions", [
+				dom.button(".ui.accept.primary.button", "OK")
+			])
+		]));
+
+		const accept$ = source.DOM.select(".ui.accept.button")
 			.events("click")
 		;
 
+		const play$ = source.DOM.select(".play")
+			.events("click")
+			.constant(R.inc)
+		;
+
 		return {
-			accept$,
-
-			DOM: Most.of(dom.div(".ui.modal.active.transition.visible", [
-				dom.div(".header", ""),
-				dom.div(".content", msg),
-				dom.div(".actions", [
-					dom.button(".ui.accept.primary.button", "OK")
-				])
-			]))
+			accept$: state$.sampleWith(accept$),
+			DOM: view,
+			state: init$.merge(play$)
 		};
-	};
+	});
 
-	const driver = mkDriver(mask);
-
-	const { run, sinks } = setup(withState(main), driver);
-	const dispose = run();
-
-	return sinks.accept$
-		.tap(dispose)
+	return modal.sinks.accept$
+		.tap(console.info)
+		.tap(modal.dispose)
 		.tap(Eff.hideMaskWhen)
 	;
 };

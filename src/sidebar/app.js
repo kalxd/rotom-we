@@ -10,7 +10,7 @@ const main = source => {
 	const inc$ = source.DOM.select(".inc")
 		.events("click")
 		.flatMap(_ => Alert.show("abc"))
-		.flatMap(_ => Alert.show("ffff"))
+		.flatMap(Alert.show)
 		.constant(R.inc)
 	;
 
