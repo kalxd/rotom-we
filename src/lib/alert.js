@@ -37,7 +37,6 @@ const show = msg => {
 	});
 
 	return modal.sinks.accept$
-		.tap(console.info)
 		.tap(modal.dispose)
 		.tap(Eff.hideMaskWhen)
 	;
