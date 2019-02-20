@@ -11,8 +11,6 @@ const mkDriver = node => ({
 // show :: String -> Stream Element
 const show = msg => {
 	const mask = Eff.showMaskWhen();
-	const mountNode = document.createElement("div");
-	mask.appendChild(mountNode);
 
 	const main = source => {
 		const accept$ = source.DOM.select(".accept")
@@ -32,14 +30,13 @@ const show = msg => {
 		};
 	};
 
-	const driver = mkDriver(mountNode);
+	const driver = mkDriver(mask);
 
 	const { run, sinks } = setup(withState(main), driver);
 	const dispose = run();
 
 	return sinks.accept$
 		.tap(dispose)
-		.tap(_ => mountNode.remove())
 		.tap(Eff.hideMaskWhen)
 	;
 };

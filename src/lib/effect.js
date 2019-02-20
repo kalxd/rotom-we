@@ -8,7 +8,7 @@ const activeKlass = ["active", "visible"];
 // createMask :: () -> Element
 const createMask = () => {
 	const mask = document.createElement("div");
-	mask.classList.add("ui", "page", "dimmer", "transition");
+	mask.classList.add("ui", "page", "modals", "dimmer", "transition");
 	return mask;
 };
 
@@ -26,10 +26,12 @@ const hideMask = mask => {
 const showMaskWhen = () => {
 	if (!maskIORef) {
 		maskIORef = createMask();
-		effectElement.appendChild(maskIORef);
 	}
 
 	showMask(maskIORef);
+	if (!effectElement.contains(maskIORef)) {
+		effectElement.appendChild(maskIORef);
+	}
 	return maskIORef;
 };
 
