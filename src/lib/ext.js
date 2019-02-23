@@ -1,3 +1,9 @@
+const Most = require("most");
+const R = require("ramda");
+
+// init :: a -> Stream (b -> a)
+const init = x => Most.of(R.always(x));
+
 // chooseIO :: Int -> Int -> IO Int
 const chooseIO = (n, m) => {
 	return Math.floor(Math.random() * (m - n)) + n;
@@ -12,5 +18,6 @@ const oneOfIO = xs => {
 	return xs[i];
 };
 
-exports.randomIO = randomIO;
+exports.init = init;
+exports.chooseIO = chooseIO;
 exports.oneOfIO = oneOfIO;
