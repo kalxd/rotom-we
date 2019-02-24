@@ -4,20 +4,27 @@ const dom = require("@cycle/dom");
 
 const OptionS = require("../state/option");
 
-const intent = source => {
+const intent = (source, option$) => {
 	const addrChange$ = source.DOM.select(".addr-input")
 		.events("change")
-		.map(e => e.value.trim())
+		.map(e => e.target.value.trim())
+		.merge(option$.map(R.view(OptionS.addrLens)))
 	;
 
 	const tokenChange$ = source.DOM.select(".token-input")
 		.events("change")
-		.map(e => e.value.trim())
+		.map(e => e.target.value.trim())
+		.merge(option$.map(R.view(OptionS.tokenLens)))
+	;
+
+	const primaryClick$ = source.DOM.select(".primary.button")
+		.events("click")
 	;
 
 	return {
 		addrChange$,
-		tokenChange$
+		tokenChange$,
+		primaryClick$
 	};
 };
 
@@ -49,10 +56,20 @@ const view = state => dom.div(".ui.segment", [
 // main :: Source -> Stream Option -> Sink
 const main = (source, option$) => {
 	const state$ = source.state.stream;
-	const action = intent(source);
+	const action = intent(source, option$);
+
+	const update$ = action.addrChange$.map(R.set(OptionS.addrLens))
+		.merge(action.tokenChange$.map(R.set(OptionS.tokenLens)))
+	;
+
+	const submit$ = state$
+		.sampleWith(action.primaryClick$)
+	;
 
 	return {
-		DOM: state$.map(view)
+		DOM: state$.map(view),
+		state: update$,
+		submit$
 	};
 };
 
