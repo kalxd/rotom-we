@@ -1,52 +1,62 @@
 const R = require("ramda");
 const Most = require("most");
 const dom = require("@cycle/dom");
+const isolate = require("@cycle/isolate").default;
 
 const { render } = require("./lib/ui");
-const App = require("./sidebar/app");
 const Store = require("./lib/store");
-const Ext = require("./lib/ext");
-const Err = require("./widget/error");
+const { throwWith } = require("./lib/ext");
 
-// repeatLine :: Int -> [View]
-const repeatLine = R.repeat(dom.div(".line"));
+const ToolS = require("./state/tool");
+const PageS = require("./state/page");
 
-const loadingLens = R.lensProp("loading");
+const PlaceholderV = require("./widget/placeholder");
+const ErrorV = require("./widget/error");
 
-// placeholderView :: View
-const placeholderView = dom.div(".ui.placeholder", [
-	dom.div(".image.header", repeatLine(2)),
-	dom.div(".paragraph", repeatLine(5))
-]);
+const App = require("./sidebar/app");
 
-const main = source => {
-	const state$ = source.state.stream;
-	const app = App(source);
+// isExist :: a -> Bool
+const isExist = R.complement(R.isNil);
 
+// validateOption :: Maybe Object -> Bool
+const validateOption = R.where({
+	addr: isExist,
+	token: isExist
+});
+
+const intent = _ => {
 	const readOption$ = Most.fromPromise(Store.getOption())
-		.tap(option => {
-			if (!option || !option.token || !option.host) {
-				const e = new Error("少东西了");
-				return Most.throwError(e);
+		.chain(option => {
+			if (isExist(option) && R.where(option)) {
+				return Most.of(option);
+			}
+			else {
+				return throwWith("信息不完整");
 			}
 		})
-		.constant(R.set(loadingLens, false))
-	;
-
-	const init$ = Ext.init({ loading: true });
-
-	const loading$ = state$.filter(s => s.loading)
-		.constant(placeholderView)
-	;
-
-	const finish$ = state$.filter(s => !s.loading)
-		.combine((_, b) => b, app.DOM)
-		.map(appView => dom.div(".ui.container", appView))
+		.multicast()
 	;
 
 	return {
-		DOM: loading$.merge(finish$).recoverWith(Err.errorView),
-		state: init$.merge(readOption$).merge(app.state)
+		readOption$
+	};
+};
+
+const main = source => {
+	const init$ = ToolS.init({ loading: true });
+
+	const action = intent(source);
+
+	const sidebarApp = isolate(App, "app")(source, action.readOption$);
+
+	const view = init$.constant(PlaceholderV.loadingView)
+		.merge(sidebarApp.DOM)
+		.recoverWith(ErrorV.errorMsg)
+	;
+
+	return {
+		DOM: view,
+		state: sidebarApp.state
 	};
 };
 

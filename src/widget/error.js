@@ -1,3 +1,4 @@
+const Most = require("most");
 const dom = require("@cycle/dom");
 
 const drawError = msg => dom.div(".ui.negative.message", [
@@ -5,6 +6,10 @@ const drawError = msg => dom.div(".ui.negative.message", [
 	dom.p(msg)
 ]);
 
-const errorView = e => drawError(e.message);
+// errorMsg:: Error -> Stream View
+const errorMsg = e => {
+	console.error(e);
+	return Most.of(drawError(e.message));
+};
 
-exports.errorView = errorView;
+exports.errorMsg = errorMsg;

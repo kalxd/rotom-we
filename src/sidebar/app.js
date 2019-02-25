@@ -1,22 +1,19 @@
 const Most = require("most");
 const R = require("ramda");
-const STATE = require("./state");
 const dom = require("@cycle/dom");
-const Alert = require("../lib/alert");
 
-const main = source => {
-	const state$ = source.state.stream;
+// render :: Object -> View
+const render = option => dom.div(".ui.segment", [
+	dom.h2(option.addr),
+	dom.h2(option.token)
+]);
 
-	const inc$ = source.DOM.select(".inc")
-		.events("click")
-		.flatMap(_ => Alert.show("abc"))
-		.flatMap(Alert.show)
-		.constant(R.inc)
-	;
+const main = (source, input$) => {
+	const init$ = Most.of(R.always(null));
 
 	return {
-		DOM: state$.map(n => dom.button(".ui.button.inc", n)),
-		state: Most.of(R.always(0)).merge(inc$)
+		DOM: input$.map(render),
+		state: init$
 	};
 };
 
