@@ -6,6 +6,7 @@ const isolate = require("@cycle/isolate").default;
 const { render } = require("./lib/ui");
 const Store = require("./lib/store");
 const { throwWith } = require("./lib/ext");
+const Fetch = require("./lib/fetch");
 
 const ToolS = require("./state/tool");
 const PageS = require("./state/page");
@@ -34,6 +35,7 @@ const intent = _ => {
 				return throwWith("信息不完整");
 			}
 		})
+		.tap(Fetch.setup)
 		.multicast()
 	;
 

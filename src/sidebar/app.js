@@ -1,6 +1,7 @@
 const Most = require("most");
 const R = require("ramda");
 const dom = require("@cycle/dom");
+const Fetch = require("../lib/fetch");
 
 // render :: Object -> View
 const render = option => dom.div(".ui.segment", [
@@ -11,8 +12,16 @@ const render = option => dom.div(".ui.segment", [
 const main = (source, input$) => {
 	const init$ = Most.of(R.always(null));
 
+	const view = input$
+		.concatMap(x => Fetch.send_$("/self")
+			.tap(console.log)
+			.constant(x)
+		)
+		.map(render)
+	;
+
 	return {
-		DOM: input$.map(render),
+		DOM: view,
 		state: init$
 	};
 };
