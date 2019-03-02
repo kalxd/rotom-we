@@ -3,6 +3,8 @@ const R = require("ramda");
 const dom = require("@cycle/dom");
 const Fetch = require("../lib/fetch");
 
+const Nav = require("./nav");
+
 // render :: Object -> View
 const render = option => dom.div(".ui.segment", [
 	dom.h2(option.addr),
@@ -12,16 +14,14 @@ const render = option => dom.div(".ui.segment", [
 const main = (source, input$) => {
 	const init$ = Most.of(R.always(null));
 
-	const view = input$
-		.concatMap(x => Fetch.send_$("/self")
-			.tap(console.log)
-			.constant(x)
-		)
-		.map(render)
+	const group$ = input$
+		.concatMap(_ => Fetch.send_$("/show/all/group"))
 	;
 
+	const nav = Nav(source, group$);
+
 	return {
-		DOM: view,
+		DOM: nav.DOM,
 		state: init$
 	};
 };
