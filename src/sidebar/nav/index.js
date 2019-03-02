@@ -5,7 +5,7 @@ const render = require("./view");
 
 const main = (source, group$) => {
 	return {
-		DOM: group$.tap(console.log).map(render),
+		DOM: group$.map(render),
 	};
 };
 

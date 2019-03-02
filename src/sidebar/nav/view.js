@@ -9,10 +9,15 @@ const renderSelect = groups => (
 	])
 );
 
-const render = state => dom.div(".ui.menu", [
+const render = state => dom.div(".ui.mini.menu", [
 	renderSelect(state),
 	dom.div(".item", [
 		dom.button(".ui.small.button", "添加分组")
+	]),
+
+	dom.div(".right.menu", [
+		dom.div(".item", "上传"),
+		dom.div(".item", "添加")
 	])
 ]);
 
