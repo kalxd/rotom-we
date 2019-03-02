@@ -4,6 +4,8 @@ const dom = require("@cycle/dom");
 
 const OptionS = require("../state/option");
 
+const { fmap } = require("../lib/ext");
+
 const intent = (source, option$) => {
 	const addrChange$ = source.DOM.select(".addr-input")
 		.events("change")
@@ -28,7 +30,12 @@ const intent = (source, option$) => {
 	};
 };
 
-const view = state => dom.div(".ui.segment", [
+const renderError = msg => dom.div(".ui.error.message", [
+	dom.div(".header", "提交信息不完整"),
+	dom.p(msg)
+]);
+
+const render = state => dom.div(".ui.segment", [
 	dom.div(".ui.form", [
 		dom.div(".field.required", [
 			dom.label("地址"),
@@ -51,7 +58,7 @@ const view = state => dom.div(".ui.segment", [
 		]),
 		dom.button(".ui.primary.button", "保存")
 	])
-])
+]);
 
 // main :: Source -> Stream Option -> Sink
 const main = (source, option$) => {
@@ -66,8 +73,33 @@ const main = (source, option$) => {
 		.sampleWith(action.primaryClick$)
 	;
 
+	// errorState$ :: Stream Maybe String
+	const errorState$ = submit$
+		.map(s => {
+			if (R.isNil(s.addr) || R.isEmpty(s.addr)) {
+				return R.always("服务地址不能为空。");
+			}
+			if (R.isNil(s.token) || R.isEmpty(s.token)) {
+				return R.always("邀请码不能为空");
+			}
+		})
+		.merge(action.addrChange$.constant(R.always(null)))
+		.merge(action.tokenChange$.constant(R.always(null)))
+		.scan(R.applyTo, null)
+	;
+
+	const view = state$.map(render)
+		.combine(
+			(mainView, errorView) => dom.div(".ui.segment", [
+				errorView,
+				mainView
+			]),
+			errorState$.map(fmap(renderError))
+		)
+	;
+
 	return {
-		DOM: state$.map(view),
+		DOM: view,
 		state: update$,
 		submit$
 	};

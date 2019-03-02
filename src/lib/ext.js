@@ -21,7 +21,17 @@ const throwWith = msg => {
 	return Most.throwError(e);
 };
 
+// fmap :: (a -> b) -> Maybe a -> Maybe b
+const fmap = R.curry((f, x) => {
+	if (R.isNil(x)) {
+		return null;
+	}
+
+	return f(x);
+});
+
 exports.chooseIO = chooseIO;
 exports.oneOfIO = oneOfIO;
 
 exports.throwWith = throwWith;
+exports.fmap = fmap;
