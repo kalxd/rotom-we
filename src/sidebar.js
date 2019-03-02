@@ -6,10 +6,6 @@ const isolate = require("@cycle/isolate").default;
 const { render } = require("./lib/ui");
 const Store = require("./lib/store");
 const { throwWith } = require("./lib/ext");
-const Fetch = require("./lib/fetch");
-
-const ToolS = require("./state/tool");
-const PageS = require("./state/page");
 
 const PlaceholderV = require("./widget/placeholder");
 const ErrorV = require("./widget/error");
@@ -35,7 +31,6 @@ const intent = _ => {
 				return throwWith("信息不完整");
 			}
 		})
-		.tap(Fetch.setup)
 		.multicast()
 	;
 
@@ -45,13 +40,11 @@ const intent = _ => {
 };
 
 const main = source => {
-	const init$ = ToolS.init({ loading: true });
-
 	const action = intent(source);
 
-	const sidebarApp = isolate(App, "app")(source, action.readOption$);
+	const sidebarApp = isolate(App)(source, action.readOption$);
 
-	const view = init$.constant(PlaceholderV.loadingView)
+	const view = Most.of(PlaceholderV.loadingView)
 		.merge(sidebarApp.DOM)
 		.recoverWith(ErrorV.errorMsg)
 	;

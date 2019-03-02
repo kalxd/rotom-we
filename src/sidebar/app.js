@@ -14,9 +14,9 @@ const render = option => dom.div(".ui.segment", [
 const main = (source, input$) => {
 	const init$ = Most.of(R.always(null));
 
-	const group$ = input$
-		.concatMap(_ => Fetch.send_$("/show/all/group"))
-	;
+	const { send_$ } = Fetch(input$);
+
+	const group$ = send_$("/show/all/group");
 
 	const nav = Nav(source, group$);
 

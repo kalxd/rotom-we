@@ -1,20 +1,12 @@
 const Most = require("most");
 const R = require("ramda");
 
-// 老子的全局变量
-let g_option = {};
-
-// setup :: Object -> IO ()
-const setup = option => g_option = option;
-
-// send :: String -> Object -> Promise a
-const send = R.curry((endpoint, data) => {
-	console.log(g_option);
-
-	const url = `${g_option.addr}`;
+// send :: Object -> String -> Object -> Promise a
+const send = R.curry((option, endpoint, data) => {
+	const url = `${option.addr}`;
 	const headers = {
 		"content-type": "application/json",
-		"rotom-yjvgma": g_option.token
+		"rotom-yjvgma": option.token
 	};
 
 	const init = {
@@ -28,15 +20,22 @@ const send = R.curry((endpoint, data) => {
 	;
 });
 
-// send$ :: String -> Object -> Stream a
-const send$ = R.curry((endpoint, data) => {
-	return Most.fromPromise(send(endpoint, data));
-});
 
-// send_$ :: String -> Stream a
-const send_$ = R.flip(send$)({});
+const setup = input$ => {
+	// send :: String -> Object -> Stream a
+	const send$ = R.curry((endpoint, data) => {
+		return input$
+			.map(option => send(option, endpoint, data))
+			.awaitPromises()
+		;
+	});
 
-exports.setup = setup;
-exports.send = send;
-exports.send$ = send$;
-exports.send_$ = send_$;
+	const send_$ = R.flip(send$)(null);
+
+	return {
+		send$,
+		send_$
+	};
+};
+
+module.exports = setup;
