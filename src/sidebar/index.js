@@ -1,24 +1,31 @@
+const R = require("ramda");
 const Most = require("most");
-const Fetch = require("../lib/fetch");
+const Fetch = require("XGLib/fetch");
 
 const ST = require("./state");
 
 const Nav = require("./nav");
 
 const main = (source, input$) => {
-	const fetch = Fetch(input$)
+	const { send_$ } = Fetch(input$)
 
-	const navProps = {
-		group$: fetch.send_$("/show/all/group"),
-		curGroup$: Most.of(null),
-		fetch
-	};
+	const group$ = send_$("/show/all/group")
+		.multicast()
+	;
 
-	const nav = Nav(source, navProps);
+	const init$ = group$
+		.map(group => ({
+			group,
+			curGroup: null
+		}))
+		.map(R.always)
+	;
+
+	const nav = Nav(source);
 
 	return {
 		DOM: nav.DOM,
-		state: nav.state
+		state: init$.merge(nav.state)
 	};
 };
 

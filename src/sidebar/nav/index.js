@@ -7,14 +7,21 @@ const ST = require("../state");
 
 const MenuSelect = require("XGWidget/menuselect");
 
-const main = (source, prop) => {
-	const itemVec$ = prop.group$
+const main = source => {
+	const state$ = source.state.stream;
+	const group$ = state$
+		.map(R.view(ST.groupLens))
 		.map(R.compose(
 			R.prepend(["全部", null]),
 			R.map(R.converge(R.pair, [R.prop("name"), R.identity]))
 		))
 	;
-	const menuSelect = isolate(MenuSelect)(source, itemVec$, prop.curGroup$);
+
+	const select$ = state$
+		.map(R.view(ST.curGroupLens))
+	;
+
+	const menuSelect = isolate(MenuSelect)(source, group$, select$);
 
 	const update$ = menuSelect.change$
 		.map(R.compose(
@@ -24,7 +31,7 @@ const main = (source, prop) => {
 	;
 
 	return {
-		DOM: menuSelect.DOM.map(render),
+		DOM: group$.combine((_, x) => x, menuSelect.DOM).map(render),
 		state: update$
 	};
 };
