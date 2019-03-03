@@ -22,6 +22,14 @@ const config = {
 	output: {
 		filename: "[name].js",
 		path: path.join(CWD, "addon")
+	},
+
+	resolve: {
+		alias: {
+			XGLib: path.join(SRC, "lib"),
+			XGState: path.join(SRC, "state"),
+			XGWidget: path.join(SRC, "widget")
+		}
 	}
 };
 
