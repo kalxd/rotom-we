@@ -82,6 +82,9 @@ const main = (source, option$) => {
 			if (R.isNil(s.token) || R.isEmpty(s.token)) {
 				return R.always("邀请码不能为空");
 			}
+			else {
+				return R.always(null);
+			}
 		})
 		.merge(action.addrChange$.constant(R.always(null)))
 		.merge(action.tokenChange$.constant(R.always(null)))
