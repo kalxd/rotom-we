@@ -1,5 +1,5 @@
 const R = require("ramda");
-const Eff = require("../../lib/effect");
+const Eff = require("XGLib/effect");
 const ST = require("./state");
 
 const intent = source => {
@@ -7,8 +7,9 @@ const intent = source => {
 		.events("click")
 	;
 
-	const itemClick$ = source.DOM.select(".menu > .item")
+	const itemClick$ = source.DOM.select(".menu > .item:not(.pointing)")
 		.events("click")
+		.debounce(200)
 	;
 
 	return {
@@ -24,9 +25,15 @@ const connect = source => {
 		// .merge(Eff.bodyClick$.constant(R.set(ST.visibleLens, false)))
 	;
 
+	const change$ = action.itemClick$
+		.map(e => e.originalTarget)
+		.map(Eff.nodeIndex)
+		.skipRepeats()
+	;
+
 	return {
 		visible$,
-		change: action.itemClick$
+		change$
 	};
 };
 

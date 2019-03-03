@@ -18,7 +18,7 @@ const main = (source, input$) => {
 
 	return {
 		DOM: nav.DOM,
-		state: nav.state.tap(console.log)
+		state: nav.state
 	};
 };
 

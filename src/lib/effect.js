@@ -46,6 +46,20 @@ const hideMaskWhen = () => {
 	hideMask(maskIORef);
 };
 
+// nodeIndex :: Element -> IO Nat
+const nodeIndex = node => {
+	let index = 0;
+
+	for (const el of node.parentNode.childNodes) {
+		if (node === el) {
+			return index;
+		}
+		++index;
+	}
+
+	return 0;
+};
+
 // bodyClick$ :: Stream Event
 const bodyClick$ = Most.fromEvent("click", document)
 	.multicast()
@@ -53,5 +67,7 @@ const bodyClick$ = Most.fromEvent("click", document)
 
 exports.showMaskWhen = showMaskWhen;
 exports.hideMaskWhen = hideMaskWhen;
+
+exports.nodeIndex = nodeIndex;
 
 exports.bodyClick$ = bodyClick$;

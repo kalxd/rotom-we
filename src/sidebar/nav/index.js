@@ -3,8 +3,9 @@ const Most = require("most");
 const isolate = require("@cycle/isolate").default;
 
 const render = require("./render");
+const ST = require("../state");
 
-const MenuSelect = require("../../widget/menuselect");
+const MenuSelect = require("XGWidget/menuselect");
 
 const main = (source, prop) => {
 	const itemVec$ = prop.group$
@@ -15,9 +16,16 @@ const main = (source, prop) => {
 	;
 	const menuSelect = isolate(MenuSelect)(source, itemVec$, prop.curGroup$);
 
+	const update$ = menuSelect.change$
+		.map(R.compose(
+			R.set(ST.curGroupLens),
+			R.prop("id")
+		))
+	;
+
 	return {
 		DOM: menuSelect.DOM.map(render),
-		state: Most.of(R.always(null))
+		state: update$
 	};
 };
 

@@ -17,12 +17,16 @@ const main = (source, itemVec$, selectItem$) => {
 
 	const state$ = input$.merge(visible$)
 		.scan(R.applyTo, ST.INIT)
-		.tap(console.log)
+	;
+
+	const itemChange$ = change$
+		.combine(R.nth, itemVec$)
+		.map(R.last)
 	;
 
 	return {
 		DOM: state$.map(render),
-		change$
+		change$: itemChange$
 	};
 };
 
