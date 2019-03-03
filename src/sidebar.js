@@ -10,7 +10,7 @@ const { throwWith } = require("./lib/ext");
 const PlaceholderV = require("./widget/placeholder");
 const ErrorV = require("./widget/error");
 
-const App = require("./sidebar/app");
+const App = require("./sidebar");
 
 // isExist :: a -> Bool
 const isExist = R.complement(R.isNil);
