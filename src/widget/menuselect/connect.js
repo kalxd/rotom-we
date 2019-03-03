@@ -3,7 +3,7 @@ const Eff = require("../../lib/effect");
 const ST = require("./state");
 
 const intent = source => {
-	const selfClick$ = source.DOM.select(".ui.pointing.link.menu")
+	const selfClick$ = source.DOM.select(".ui.pointing.link.item")
 		.events("click")
 	;
 
@@ -21,7 +21,7 @@ const connect = source => {
 	const action = intent(source);
 
 	const visible$ = action.selfClick$.constant(R.over(ST.visibleLens, R.not))
-		.merge(Eff.bodyClick$.constant(R.set(ST.visibleLens, false)))
+		// .merge(Eff.bodyClick$.constant(R.set(ST.visibleLens, false)))
 	;
 
 	return {

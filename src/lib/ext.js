@@ -30,8 +30,18 @@ const fmap = R.curry((f, x) => {
 	return f(x);
 });
 
+// renderWhen :: Bool -> Bool -> View
+const renderWhen = R.curry((b, f) => {
+	if (!b) {
+		return null;
+	}
+
+	return f(b);
+});
+
 exports.chooseIO = chooseIO;
 exports.oneOfIO = oneOfIO;
 
 exports.throwWith = throwWith;
 exports.fmap = fmap;
+exports.renderWhen = renderWhen;

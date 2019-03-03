@@ -7,7 +7,13 @@ const render = require("./render");
 const MenuSelect = require("../../widget/menuselect");
 
 const main = (source, prop) => {
-	const menuSelect = isolate(MenuSelect)(source, prop.group$, prop.curGroup$);
+	const itemVec$ = prop.group$
+		.map(R.compose(
+			R.prepend(["全部", null]),
+			R.map(R.converge(R.pair, [R.prop("name"), R.identity]))
+		))
+	;
+	const menuSelect = isolate(MenuSelect)(source, itemVec$, prop.curGroup$);
 
 	return {
 		DOM: menuSelect.DOM.map(render),

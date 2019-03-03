@@ -1,7 +1,7 @@
 const R = require("ramda");
 
 // visible :: Bool
-// itemVec :: [a]
+// itemVec :: [(String, a)]
 // select :: Maybe Nat
 const INIT = {
 	visible: false,
