@@ -1,3 +1,5 @@
+const Most = require("most");
+
 const effectElement = document.getElementById("effect");
 
 // maskIORef :: IO Element
@@ -44,5 +46,12 @@ const hideMaskWhen = () => {
 	hideMask(maskIORef);
 };
 
+// bodyClick$ :: Stream Event
+const bodyClick$ = Most.fromEvent("click", document)
+	.multicast()
+;
+
 exports.showMaskWhen = showMaskWhen;
 exports.hideMaskWhen = hideMaskWhen;
+
+exports.bodyClick$ = bodyClick$;

@@ -1,19 +1,10 @@
 const R = require("ramda");
 
-/*
- * global state:
- * curColSize :: Int
- * curGroup :: Maybe Int
- */
-const INIT = {
-	curColSize: 2,
-	curGroup: null
-};
+// curGroup :: Maybe Int
+// group :: [a]
 
-const curColSizeLens = R.lensProp("curColSize");
 const curGroupLens = R.lensProp("curGroup");
+const groupLens = R.lensProp("group");
 
-exports.INIT = INIT;
-
-exports.curColSizeLens = curColSizeLens;
 exports.curGroupLens = curGroupLens;
+exports.groupLens = groupLens;

@@ -1,11 +1,17 @@
 const R = require("ramda");
 const Most = require("most");
+const isolate = require("@cycle/isolate").default;
 
-const render = require("./view");
+const render = require("./render");
 
-const main = (source, group$) => {
+const MenuSelect = require("../../widget/menuselect");
+
+const main = (source, prop) => {
+	const menuSelect = isolate(MenuSelect)(source, prop.group$, prop.curGroup$);
+
 	return {
-		DOM: group$.map(render),
+		DOM: menuSelect.DOM.map(render),
+		state: Most.of(R.always(null))
 	};
 };
 
