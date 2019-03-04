@@ -35,29 +35,27 @@ const renderError = msg => dom.div(".ui.error.message", [
 	dom.p(msg)
 ]);
 
-const render = state => dom.div(".ui.segment", [
-	dom.div(".ui.form", [
-		dom.div(".field.required", [
-			dom.label("地址"),
-			dom.input(".addr-input", {
-				attrs: {
-					placeholder: "毕竟云表情",
-					value: state.addr
-				}
-			})
-		]),
+const render = state => dom.div(".ui.form", [
+	dom.div(".field.required", [
+		dom.label("地址"),
+		dom.input(".addr-input", {
+			attrs: {
+				placeholder: "毕竟云表情",
+				value: state.addr
+			}
+		})
+	]),
 
-		dom.div(".field.required", [
-			dom.label("验证码"),
-			dom.input(".token-input", {
-				attrs: {
-					placeholder: "路边帅哥送你的一串神秘代码",
-					value: state.token
-				}
-			})
-		]),
-		dom.button(".ui.primary.button", "保存")
-	])
+	dom.div(".field.required", [
+		dom.label("验证码"),
+		dom.input(".token-input", {
+			attrs: {
+				placeholder: "路边帅哥送你的一串神秘代码",
+				value: state.token
+			}
+		})
+	]),
+	dom.button(".ui.primary.button", "保存")
 ]);
 
 // main :: Source -> Stream Option -> Sink
