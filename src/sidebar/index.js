@@ -24,7 +24,7 @@ const main = (source, input$) => {
 	const nav = Nav(source);
 
 	return {
-		DOM: nav.DOM,
+		DOM: group$.concatMap(_ => nav.DOM),
 		state: init$.merge(nav.state)
 	};
 };

@@ -42,7 +42,7 @@ const NUM_VEC = [
 // showNumName :: Int -> Maybe String
 const showNumName = R.flip(R.nth)(NUM_VEC);
 
-exports.COLORE_VEC = COLORE_VEC;
+exports.COLOR_VEC = COLOR_VEC;
 exports.randomColorIO = randomColorIO;
 
 exports.NUM_VEC = NUM_VEC;

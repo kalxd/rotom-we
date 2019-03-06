@@ -5,7 +5,7 @@ const isolate = require("@cycle/isolate").default;
 const render = require("./render");
 const ST = require("../state");
 
-const MenuSelect = require("XGWidget/menuselect");
+const GroupSelect = require("XGWidget/groupselect");
 
 const main = source => {
 	const state$ = source.state.stream;
@@ -21,9 +21,9 @@ const main = source => {
 		.map(R.view(ST.curGroupLens))
 	;
 
-	const menuSelect = isolate(MenuSelect)(source, group$, select$);
+	const groupSelect = isolate(GroupSelect)(source, group$, select$);
 
-	const update$ = menuSelect.change$
+	const update$ = groupSelect.change$
 		.map(R.compose(
 			R.set(ST.curGroupLens),
 			R.prop("id")
@@ -31,7 +31,7 @@ const main = source => {
 	;
 
 	return {
-		DOM: group$.combine((_, x) => x, menuSelect.DOM).map(render),
+		DOM: groupSelect.DOM.map(render),
 		state: update$
 	};
 };
