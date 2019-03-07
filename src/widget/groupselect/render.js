@@ -30,16 +30,16 @@ const renderOpMenu = state => [
 		dom.i(".icon.paint.brush"),
 		"其它操作"
 	]),
-	dom.div(".item", [
+	dom.div("._xg_new_.item", [
 		renderColorLabel(),
 		"新建"
 	]),
 
-	fmap(_ => dom.div(".item", [
+	fmap(_ => dom.div("._xg_edit_.item", [
 		renderColorLabel(),
 		"编辑"
 	]), state.select),
-	fmap(_ => dom.div(".item", [
+	fmap(_ => dom.div("._xg_delete_.item", [
 		renderColorLabel(),
 		"删除"
 	]), state.select)
@@ -51,7 +51,7 @@ const renderDropMenu = state => (
 			dom.i(".icon.tags"),
 			"选择分组"
 		]),
-		...state.itemVec.map(([name]) => dom.div(".item", [renderColorLabel(), name])),
+		...state.itemVec.map(([name]) => dom.div("._xg_item_.item", [renderColorLabel(), name])),
 
 		dom.div(".ui.divider"),
 		...renderOpMenu(state)
@@ -59,9 +59,12 @@ const renderDropMenu = state => (
 );
 
 const render = state => {
+	console.log(state);
+	const [title] = R.find(([_, item]) => item === state.select)(state.itemVec);
+
 	return (
 		dom.div(".ui.pointing.dropdown.link.item", [
-			dom.span(".text", "标题"),
+			dom.span(".text", title),
 			dom.i(".icon.dropdown"),
 			renderWhen(state.visible, _ => renderDropMenu(state)),
 		])

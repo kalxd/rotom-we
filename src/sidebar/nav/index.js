@@ -24,10 +24,7 @@ const main = source => {
 	const groupSelect = isolate(GroupSelect)(source, group$, select$);
 
 	const update$ = groupSelect.change$
-		.map(R.compose(
-			R.set(ST.curGroupLens),
-			R.prop("id")
-		))
+		.map(R.set(ST.curGroupLens))
 	;
 
 	return {

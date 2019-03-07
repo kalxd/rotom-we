@@ -16,7 +16,8 @@ const main = (source, input$) => {
 	const init$ = group$
 		.map(group => ({
 			group,
-			curGroup: null
+			curGroup: null,
+			select: null
 		}))
 		.map(R.always)
 	;

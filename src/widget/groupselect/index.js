@@ -1,4 +1,5 @@
 const R = require("ramda");
+const Most = require("most");
 
 const connect = require("./connect");
 const render = require("./render");
@@ -15,13 +16,19 @@ const main = (source, itemVec$, selectItem$) => {
 		selectItem$
 	);
 
-	const state$ = input$.merge(visible$)
-		.scan(R.applyTo, ST.INIT)
-	;
+	const state$ = Most.combineArray(
+		(itemVec, select, visible) => ({
+			itemVec,
+			select,
+			visible
+		}),
+		[itemVec$, selectItem$, visible$]
+	);
 
 	const itemChange$ = change$
 		.combine(R.nth, itemVec$)
 		.map(R.last)
+		.sampleWith(change$)
 	;
 
 	return {
