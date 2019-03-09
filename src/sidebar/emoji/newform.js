@@ -1,3 +1,6 @@
+const Most = require("most");
+const dom = require("@cycle/dom");
+
 const Dialog = require("XGWidget/dialog");
 
 const render = state => {
@@ -17,13 +20,16 @@ const app = source => {
 	const view = render(source);
 
 	return {
-		DOM: view
+		DOM: Most.of(view)
 	};
 };
 
 const main = () => {
 	const dialog = Dialog(app);
-	console.log(dialog);
+	return dialog.accept$
+		.tap(dialog.hideDialog)
+		.constant(1)
+	;
 };
 
 module.exports = main;

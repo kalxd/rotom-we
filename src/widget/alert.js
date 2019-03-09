@@ -2,23 +2,22 @@ const R = require("ramda");
 const Most = require("most");
 const dom = require("@cycle/dom");
 const Modal = require("./modal");
-const Eff = require("./effect");
+const Eff = require("XGLib/effect");
+
+const render = msg => dom.div(".ui.modal.transition.visible", [
+	dom.div(".header", msg),
+	dom.div(".content", msg),
+	dom.div(".actions", [
+		dom.button(".ui.accept.primary.button", "OK")
+	])
+]);
 
 // show :: String -> Stream Element
 const show = msg => {
+	console.info(msg);
 	const modal = Modal(source => {
 		const state$ = source.state.stream;
 		const init$ = Most.of(R.always(0));
-
-		const view = state$.map(n => dom.div(".ui.modal.transition.visible", [
-			dom.div(".header", msg),
-			dom.div(".content", [
-				dom.button(".ui.play.button", n)
-			]),
-			dom.div(".actions", [
-				dom.button(".ui.accept.primary.button", "OK")
-			])
-		]));
 
 		const accept$ = source.DOM.select(".ui.accept.button")
 			.events("click")
@@ -31,7 +30,7 @@ const show = msg => {
 
 		return {
 			accept$: state$.sampleWith(accept$),
-			DOM: view,
+			DOM: state$.constant(render(msg)),
 			state: init$.merge(play$)
 		};
 	});
