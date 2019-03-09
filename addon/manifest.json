@@ -4,7 +4,11 @@
 	"version": "0.1.0",
 	"author": "XG.Ley",
 	"description": "云表情",
-	"permissions": ["<all_urls>", "storage"],
+	"permissions": [
+		"<all_urls>",
+		"storage",
+		"clipboardWrite"
+	],
 	"options_ui": {
 		"page": "html/option.html",
 		"browser_style": false

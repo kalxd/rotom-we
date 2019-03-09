@@ -40,6 +40,7 @@ const main = (source, input$) => {
 			}
 		})
 		.concatMap(send_$)
+		.multicast()
 	;
 
 	const nav = Nav(source);
