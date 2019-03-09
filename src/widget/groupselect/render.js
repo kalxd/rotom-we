@@ -5,10 +5,11 @@ const { randomColorIO } = require("XGLib/constant");
 
 const menuOption = {
 	style: {
-		transition: "transform .5s, opacity .5s",
-		opacity: 0,
+		transition: "transform .3s linear, opacity .3s linear",
+		opacity: 1,
 		transformOrigin: "top",
 		transform: "rotateX(0.25turn)",
+		zIndex: 10,
 		delayed: {
 			opacity: 1,
 			transform: "rotateX(0)"
@@ -46,7 +47,7 @@ const renderOpMenu = state => [
 ];
 
 const renderDropMenu = state => (
-	dom.div(".menu.transition.visible", menuOption, [
+	dom.div(".menu.transition.visible", /* menuOption, */ [
 		dom.div(".header", [
 			dom.i(".icon.tags"),
 			"选择分组"
