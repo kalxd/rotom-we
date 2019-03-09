@@ -1,7 +1,7 @@
 const R = require("ramda");
 const Fetch = require("XGLib/fetch");
 
-const EmojiNewForm = require("./emoji/newform");
+const EmojiForm = require("./emoji/form");
 const Alert = require("XGWidget/alert");
 
 const ST = require("./state");
@@ -25,9 +25,14 @@ const intentFetch = (source, input$) => {
 		.concatMap(send_$)
 	;
 
+	const createEmoji$ = send$("/emoji/create");
+	const updateEmoji$ = send$("/emoji/update");
+
 	return {
 		showGroup$,
-		showEmoji$
+		showEmoji$,
+		createEmoji$,
+		updateEmoji$
 	};
 };
 
@@ -39,6 +44,35 @@ const intent = source => {
 	return {
 		createEmojiClick$
 	};
+};
+
+const update = (source, action, fetchAction) => {
+	const state$ = source.state.stream;
+
+	const createEmoji$ = state$
+		.map(state => {
+			const select = R.view(ST.curGroupLens)(state);
+			const group = R.pipe(
+				R.view(ST.groupLens),
+				R.map(item => ([item.name, item]))
+			)(state);
+
+			return [group, select];
+		})
+		.sampleWith(action.createEmojiClick$)
+		.map(([itemVec, select]) => ({
+			itemVec,
+			select,
+			class: ".fluid.selection"
+		}))
+		.chain(EmojiForm)
+		.chain(fetchAction.createEmoji$)
+		.map(a => R.over(ST.groupLens, R.append(a)))
+	;
+
+	const update$ = createEmoji$;
+
+	return update$;
 };
 
 const connect = (source, input$) => {
@@ -53,15 +87,13 @@ const connect = (source, input$) => {
 		.map(R.always)
 	;
 
-	action.createEmojiClick$
-		.chain(EmojiNewForm)
-		.observe(console.log)
-	;
+	const update$ = update(source, action, fetchAction);
 
 	return {
 		init$,
 		group$: fetchAction.showGroup$,
-		emoji$: fetchAction.showEmoji$
+		emoji$: fetchAction.showEmoji$,
+		update$
 	};
 };
 

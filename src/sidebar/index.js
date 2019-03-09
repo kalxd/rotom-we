@@ -46,7 +46,9 @@ const main = (source, input$) => {
 
 	return {
 		DOM: mainView,
-		state: action.init$.merge(nav.state)
+		state: action.init$
+			.merge(action.update$)
+			.merge(nav.state)
 	};
 };
 

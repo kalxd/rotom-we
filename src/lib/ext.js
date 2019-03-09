@@ -1,6 +1,13 @@
 const Most = require("most");
 const R = require("ramda");
 
+// isNotEmpty :: String -> Bool
+const isNotEmpty = R.compose(
+	R.not,
+	R.isEmpty,
+	R.trim
+);
+
 // chooseIO :: Int -> Int -> IO Int
 const chooseIO = (n, m) => {
 	return Math.floor(Math.random() * (m - n)) + n;
@@ -38,6 +45,8 @@ const renderWhen = R.curry((b, f) => {
 
 	return f(b);
 });
+
+exports.isNotEmpty = isNotEmpty;
 
 exports.chooseIO = chooseIO;
 exports.oneOfIO = oneOfIO;

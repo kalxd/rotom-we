@@ -1,36 +1,34 @@
+const R = require("ramda");
 const dom = require("@cycle/dom");
-const { renderWhen } = require("../../lib/ext");
-
-const menuOption = {
-	style: {
-		transition: "transform .5s, opacity .5s",
-		opacity: 0,
-		transformOrigin: "top",
-		transform: "rotateX(0.25turn)",
-		delayed: {
-			opacity: 1,
-			transform: "rotateX(0)"
-		},
-		remove: {
-			opacity: 0,
-			transform: "rotateX(0.25turn)"
-		}
-	}
-};
+const { renderWhen, fmap } = require("XGLib/ext");
 
 const renderDropMenu = itemVec => (
-	dom.div(".menu.transition.visible", menuOption, [
-		...itemVec.map(([name]) => dom.div(".item", name))
+	dom.div(".menu.transition.visible", [
+		...itemVec.map(([name]) => dom.div("._xg_item_.item", name))
 	])
 );
 
 const render = state => {
+	console.info(state);
+	const title = R.pipe(
+		R.find(([_, item]) => item === state.select),
+		fmap(R.head)
+	)(state.itemVec);
+		
 	return (
-		dom.div(".ui.pointing.dropdown.link.item", [
-			dom.span(".text", "标题"),
-			dom.i(".icon.dropdown"),
-			renderWhen(state.visible, _ => renderDropMenu(state.itemVec))
-		])
+		dom.div(
+			`.ui._xg_menuselect_.transition.dropdown${state.class}`,
+			{
+				class: {
+					active: state.visible
+				}
+			},
+			[
+				dom.span(".text", title || ""),
+				dom.i(".icon.dropdown"),
+				renderWhen(state.visible, _ => renderDropMenu(state.itemVec))
+			]
+		)
 	);
 };
 

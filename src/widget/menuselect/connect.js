@@ -3,13 +3,12 @@ const Eff = require("XGLib/effect");
 const ST = require("./state");
 
 const intent = source => {
-	const selfClick$ = source.DOM.select(".ui.pointing.link.item")
+	const selfClick$ = source.DOM.select("._xg_menuselect_")
 		.events("click")
 	;
 
-	const itemClick$ = source.DOM.select(".menu > .item:not(.pointing)")
+	const itemClick$ = source.DOM.select("._xg_item_")
 		.events("click")
-		.debounce(200)
 	;
 
 	return {
@@ -18,17 +17,21 @@ const intent = source => {
 	};
 };
 
-const connect = source => {
+const connect = (source, prop) => {
 	const action = intent(source);
 
-	const visible$ = action.selfClick$.constant(R.over(ST.visibleLens, R.not))
-		// .merge(Eff.bodyClick$.constant(R.set(ST.visibleLens, false)))
+	const visible$ = action.selfClick$
+		.constant(R.not)
+		.scan(R.applyTo, false)
+		.skipRepeats()
 	;
 
 	const change$ = action.itemClick$
-		.map(e => e.originalTarget)
+		.map(e => e.target)
 		.map(Eff.nodeIndex)
 		.skipRepeats()
+		.map(index => prop.itemVec[index])
+		.map(R.last)
 	;
 
 	return {
