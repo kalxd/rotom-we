@@ -6,6 +6,16 @@ const { fmap } = require("XGLib/ext");
 
 const Modal = require("./modal");
 
+const modalStyle = {
+	transition: "opacity .3s, transform .3s",
+	opacity: 0,
+	transform: "translateX(+20px) rotateY(-60deg)",
+	delayed: {
+		opacity: 1,
+		transform: "translateX(0) rotateY(0)"
+	}
+};
+
 const intent = source => {
 	const accept$ = source.DOM.select(".accept")
 		.events("click")
@@ -21,14 +31,16 @@ const intent = source => {
 	};
 };
 
-const render = R.curry((title, appView) => dom.div(".ui.modal.transition.visible", [
-	fmap(title => dom.div(".header", title))(title),
-	dom.div(".content", appView),
-	dom.div(".actions", [
-		dom.button(".ui.reject.button", "不好"),
-		dom.button(".ui.accept.primary.button", "好")
+const render = R.curry((title, appView) => (
+	dom.div(".ui.modal.transition.visible", { style: modalStyle }, [
+		fmap(title => dom.div(".header", title))(title),
+		dom.div(".content", appView),
+		dom.div(".actions", [
+			dom.button(".ui.reject.button", "不好"),
+			dom.button(".ui.accept.primary.button", "好")
+		])
 	])
-]));
+));
 
 const main = (App, title) => {
 	const modal = Modal(source => {
