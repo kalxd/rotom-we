@@ -59,7 +59,6 @@ const renderDropMenu = state => (
 );
 
 const render = state => {
-	console.log(state);
 	const [title] = R.find(([_, item]) => item === state.select)(state.itemVec);
 
 	return (
