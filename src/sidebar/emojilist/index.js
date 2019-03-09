@@ -17,7 +17,8 @@ const main = (source, emoji$, change$) => {
 	});
 
 	return {
-		DOM: view
+		DOM: view,
+		edit$: action.edit$
 	};
 };
 

@@ -110,11 +110,41 @@ const connect = (source, input$) => {
 		.filter(R.complement(R.isNil))
 	;
 
+	const updateEmoji$ = emoji => {
+		return state$
+			.map(R.view(ST.groupLens))
+			.chain(groupVec => {
+				const index = R.findIndex(
+					group => group.group_id === emoji.id,
+					groupVec
+				);
+				const lens = R.lensIndex(index);
+				const itemVec = R.map(group => ([group.name, group]))(groupVec);
+
+				const prop = {
+					name: emoji.name,
+					link: emoji.link,
+					itemVec,
+					select: R.view(lens, groupVec),
+					class: ".fluid.selection"
+				};
+
+				console.info(prop);
+
+				return EmojiForm(prop)
+					.chain(fetchAction.updateEmoji$)
+					.map(R.set(lens))
+				;
+			})
+		;
+	};
+
 	return {
 		init$,
 		curGroup$,
 		group$: fetchAction.showGroup$,
 		emoji$,
+		updateEmoji$,
 		update$
 	};
 };

@@ -14,17 +14,19 @@ const mkdata = (name, link, item) => ({
 	group_id: item.id
 });
 
-const intent = source => {
+const intent = (source, prop) => {
 	const nameChange$ = source.DOM.select("._xg_name_input_")
 		.events("change")
 		.map(e => e.target.value.trim())
-		.filter(s => s.length)
+		.startWith(prop.name)
+		.filter(s => s && s.length)
 	;
 
 	const linkChange$ = source.DOM.select("._xg_link_input_")
 		.events("change")
 		.map(e => e.target.value.trim())
-		.filter(s => s.length)
+		.startWith(prop.link)
+		.filter(s => s && s.length)
 	;
 
 	return {
@@ -33,35 +35,60 @@ const intent = source => {
 	};
 };
 
-const render = groupView => {
+const render = R.curry((prop, groupView) => {
 	return dom.div(".ui.form", [
 		dom.div(".ui.field", [
 			dom.label("名称"),
-			dom.input("._xg_name_input_")
+			dom.input("._xg_name_input_", {
+				attrs: {
+					placeholder: "表情名称",
+					value: prop.name
+				}
+			})
 		]),
 		dom.div(".ui.field.required", [
 			dom.label("链接"),
-			dom.input("._xg_link_input_")
+			dom.input("._xg_link_input_", {
+				attrs: {
+					placeholder: "表情链接地址",
+					value: prop.link
+				}
+			})
 		]),
 		dom.div(".ui.field.required", [
 			dom.label("分组"),
 			groupView
 		])
 	]);
-};
+});
 
+// prop:
+// groupVec :: [(String, a)]
+// select :: Maybe a
+// class :: String
+// name :: Maybe String
+// link :: Maybe String
 const app = R.curry((prop, source) => {
-	const action = intent(source);
+	const action = intent(source, prop);
 
 	const menuSelect = MenuSelect(source, prop);
 
+	const groupChange$ = menuSelect.change$
+		.startWith(prop.select)
+		.filter(R.complement(R.isNil))
+	;
+
 	const change$ = Most.combineArray(
 		mkdata,
-		[action.nameChange$, action.linkChange$, menuSelect.change$]
+		[
+			action.nameChange$,
+			action.linkChange$,
+			groupChange$
+		]
 	);
 
 	return {
-		DOM: menuSelect.DOM.map(render),
+		DOM: menuSelect.DOM.map(render(prop)),
 		change$
 	};
 });

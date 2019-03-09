@@ -32,9 +32,14 @@ const main = (source, input$) => {
 		emojiList.DOM
 	);
 
+	const updateEmoji$ = emojiList.edit$
+		.chain(action.updateEmoji$)
+	;
+
 	const update$ = nav.change$
 		.map(R.set(ST.curGroupLens))
 		.merge(nav.change$.constant(R.set(ST.emojiVecLens, null)))
+		.merge(updateEmoji$)
 	;
 
 	return {
