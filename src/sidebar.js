@@ -31,7 +31,6 @@ const intent = _ => {
 				return throwWith("信息不完整");
 			}
 		})
-		.multicast()
 	;
 
 	return {
