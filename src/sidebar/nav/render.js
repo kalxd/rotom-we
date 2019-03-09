@@ -5,9 +5,9 @@ const render = groupSelectView => dom.div(".ui.menu", [
 
 	dom.div(".right.menu", [
 		dom.div(".item", [
-			dom.button(".ui.primary.small.vertical.animated.button", [
-				dom.div(".hidden.content", "添加表情"),
-				dom.div(".visible.content", dom.i(".icon.square.plus.outline"))
+			dom.button(".ui.primary.small.basic.button", [
+				dom.i(".icon.plus.circle"),
+				"添加表情"
 			])
 		])
 	])

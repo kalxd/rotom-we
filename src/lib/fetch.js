@@ -16,6 +16,14 @@ const send = R.curry((option, endpoint, data) => {
 	};
 
 	return fetch(`${url}${endpoint}`, init)
+		.then(r => {
+			if (r.ok) {
+				return r;
+			}
+
+			const e = new Error(r.statusText);
+			return Promise.reject(e);
+		})
 		.then(r => r.json())
 	;
 });
