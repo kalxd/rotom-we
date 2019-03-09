@@ -2,7 +2,7 @@ const R = require("ramda");
 
 // curGroup :: Maybe Int
 // group :: [a]
-// emojiVec :: [b]
+// emojiVec :: Maybe [b]
 
 const curGroupLens = R.lensProp("curGroup");
 const groupLens = R.lensProp("group");

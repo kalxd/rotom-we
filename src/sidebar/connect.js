@@ -1,7 +1,7 @@
 const R = require("ramda");
 const Fetch = require("XGLib/fetch");
 
-const EmojiForm = require("./emoji/form");
+const EmojiForm = require("./form/emoji");
 const Alert = require("XGWidget/alert");
 
 const ST = require("./state");
