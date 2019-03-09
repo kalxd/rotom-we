@@ -12,9 +12,20 @@ const intent = source => {
 		.debounce(200)
 	;
 
+	const newClick$ = source.DOM.select("._xg_new_")
+		.events("click")
+	;
+
+	const editClick$ = source.DOM.select("._xg_edit_")
+		.events("click")
+	;
+
 	return {
 		selfClick$,
-		itemClick$
+		itemClick$,
+
+		newClick$,
+		editClick$
 	};
 };
 
@@ -44,7 +55,9 @@ const connect = source => {
 
 	return {
 		visible$,
-		change$
+		change$,
+		new$: action.newClick$,
+		editClick$: action.editClick$
 	};
 };
 

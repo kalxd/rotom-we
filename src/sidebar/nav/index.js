@@ -24,7 +24,9 @@ const main = source => {
 
 	return {
 		DOM: groupSelect.DOM.map(render),
-		change$: groupSelect.change$
+		change$: groupSelect.change$,
+		edit$: groupSelect.edit$,
+		new$: groupSelect.new$
 	};
 };
 

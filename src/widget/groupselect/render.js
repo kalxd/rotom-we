@@ -60,7 +60,20 @@ const renderDropMenu = state => (
 );
 
 const render = state => {
-	const [title] = R.find(([_, item]) => item === state.select)(state.itemVec);
+	const [title] = R.find(
+		([_, item]) => {
+			if (R.isNil(state.select)) {
+				return true;
+			}
+
+			if (R.isNil(item)) {
+				return false;
+			}
+
+			return state.select.id === item.id;
+		},
+		state.itemVec
+	);
 
 	return (
 		dom.div(".ui.pointing.dropdown.link.item", [

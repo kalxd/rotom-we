@@ -94,7 +94,7 @@ const app = R.curry((prop, source) => {
 });
 
 const main = prop => {
-	const dialog = Dialog(app(prop), "新建");
+	const dialog = Dialog(app(prop), "编辑表情");
 
 	return dialog.appSink.change$
 		.filter(R.where({

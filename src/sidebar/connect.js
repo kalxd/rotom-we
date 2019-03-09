@@ -2,6 +2,7 @@ const R = require("ramda");
 const Fetch = require("XGLib/fetch");
 
 const EmojiForm = require("./form/emoji");
+const GroupForm = require("./form/group");
 const Alert = require("XGWidget/alert");
 
 const ST = require("./state");
@@ -30,14 +31,20 @@ const intentFetch = (source, input$) => {
 		.multicast()
 	;
 
+	const createGroup$ = send$("/group/create");
+	const updateGroup$ = R.curry((id, data) => send$(`/group/${id}/update`, data));
+
 	const createEmoji$ = send$("/emoji/create");
-	const updateEmoji$ = send$("/emoji/update");
+	const updateEmoji$ = R.curry((id, data) => send$(`/emoji/${id}/update`, data));
 
 	return {
 		groupChange$,
 
 		showGroup$,
 		showEmoji$,
+
+		createGroup$,
+		updateGroup$,
 		createEmoji$,
 		updateEmoji$
 	};
@@ -110,7 +117,7 @@ const connect = (source, input$) => {
 		.filter(R.complement(R.isNil))
 	;
 
-	const updateEmoji$ = emoji => {
+	const updateEmoji = emoji => {
 		return state$
 			.map(R.view(ST.groupLens))
 			.chain(groupVec => {
@@ -129,13 +136,42 @@ const connect = (source, input$) => {
 					class: ".fluid.selection"
 				};
 
-				console.info(prop);
-
 				return EmojiForm(prop)
-					.chain(fetchAction.updateEmoji$)
+					.chain(fetchAction.updateEmoji$(emoji.id))
 					.map(R.set(lens))
 				;
 			})
+		;
+	};
+
+	const createGroup = () => {
+		return GroupForm({})
+			.map(R.objOf("name"))
+			.chain(fetchAction.createGroup$)
+			.map(a => R.over(ST.groupLens, R.append(a)))
+		;
+	};
+
+	const updateGroup = ([groupVec, group]) => {
+		const index = R.findIndex(R.equals(group), groupVec);
+		const lens = R.lensIndex(index);
+
+		const prop = {
+			name: group.name
+		};
+
+		const groupLens = R.compose(
+			ST.groupLens,
+			lens,
+		);
+
+		return GroupForm(prop)
+			.map(R.objOf("name"))
+			.chain(fetchAction.updateGroup$(group.id))
+			.map(a => R.compose(
+				R.set(ST.curGroupLens, a),
+				R.set(groupLens, a)
+			))
 		;
 	};
 
@@ -144,8 +180,11 @@ const connect = (source, input$) => {
 		curGroup$,
 		group$: fetchAction.showGroup$,
 		emoji$,
-		updateEmoji$,
-		update$
+		update$,
+
+		createGroup,
+		updateGroup,
+		updateEmoji
 	};
 };
 

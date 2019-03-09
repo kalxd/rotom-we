@@ -6,7 +6,12 @@ const render = require("./render");
 const ST = require("./state");
 
 const main = (source, itemVec$, selectItem$) => {
-	const { visible$, change$ } = connect(source);
+	const {
+		visible$,
+		change$,
+		new$,
+		editClick$
+	} = connect(source);
 
 	const input$ = itemVec$.combine(
 		(itemVec, select) => R.compose(
@@ -31,9 +36,15 @@ const main = (source, itemVec$, selectItem$) => {
 		.sampleWith(change$)
 	;
 
+	const edit$ = selectItem$
+		.sampleWith(editClick$)
+	;
+
 	return {
 		DOM: state$.map(render),
-		change$: itemChange$
+		change$: itemChange$,
+		new$,
+		edit$
 	};
 };
 

@@ -32,13 +32,26 @@ const main = (source, input$) => {
 		emojiList.DOM
 	);
 
+	const createGroup$ = nav.new$
+		.chain(action.createGroup)
+	;
+
+	const updateGroup$ = state$
+		.map(R.view(ST.groupLens))
+		.combine(R.pair, nav.edit$)
+		.sampleWith(nav.edit$)
+		.chain(action.updateGroup)
+	;
+
 	const updateEmoji$ = emojiList.edit$
-		.chain(action.updateEmoji$)
+		.chain(action.updateEmoji)
 	;
 
 	const update$ = nav.change$
 		.map(R.set(ST.curGroupLens))
 		.merge(nav.change$.constant(R.set(ST.emojiVecLens, null)))
+		.merge(createGroup$)
+		.merge(updateGroup$)
 		.merge(updateEmoji$)
 	;
 
