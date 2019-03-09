@@ -2,8 +2,6 @@ const R = require("ramda");
 const Most = require("most");
 const dom = require("@cycle/dom");
 
-const PlaceholderV = require("XGWidget/placeholder");
-
 const Nav = require("./nav");
 const EmojiList = require("./emojilist");
 
@@ -18,37 +16,32 @@ const main = (source, input$) => {
 		.multicast()
 	;
 
-	const emoji$ = action.emoji$
-		.multicast()
-	;
-
-	const curGroup$ = state$
-		.map(R.view(ST.curGroupLens))
-	;
-
 	const nav = Nav(source);
 	const emojiList = EmojiList(
 		source,
-		emoji$,
-		curGroup$
+		action.emoji$,
+		action.curGroup$
 	);
 
 	const mainView = Most.combine(
-		(navView, emojiListView) => {
-			return dom.div([
-				navView,
-				emojiListView
-			]);
-		},
+		(navView, emojiListView) => dom.div([
+			navView,
+			emojiListView
+		]),
 		nav.DOM,
 		emojiList.DOM
 	);
+
+	const update$ = nav.change$
+		.map(R.set(ST.curGroupLens))
+		.merge(nav.change$.constant(R.set(ST.emojiVecLens, null)))
+	;
 
 	return {
 		DOM: mainView,
 		state: action.init$
 			.merge(action.update$)
-			.merge(nav.state)
+			.merge(update$)
 	};
 };
 

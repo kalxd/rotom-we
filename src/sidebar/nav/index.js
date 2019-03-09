@@ -3,14 +3,13 @@ const Most = require("most");
 const isolate = require("@cycle/isolate").default;
 
 const render = require("./render");
-const ST = require("../state");
 
 const GroupSelect = require("XGWidget/groupselect");
 
 const main = source => {
 	const state$ = source.state.stream;
 	const group$ = state$
-		.map(R.view(ST.groupLens))
+		.map(state => state.group)
 		.map(R.compose(
 			R.prepend(["全部", null]),
 			R.map(R.converge(R.pair, [R.prop("name"), R.identity]))
@@ -18,18 +17,14 @@ const main = source => {
 	;
 
 	const select$ = state$
-		.map(R.view(ST.curGroupLens))
+		.map(state => state.curGroup)
 	;
 
 	const groupSelect = isolate(GroupSelect)(source, group$, select$);
 
-	const update$ = groupSelect.change$
-		.map(R.set(ST.curGroupLens))
-	;
-
 	return {
 		DOM: groupSelect.DOM.map(render),
-		state: update$
+		change$: groupSelect.change$
 	};
 };
 

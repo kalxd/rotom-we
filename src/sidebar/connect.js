@@ -10,10 +10,14 @@ const intentFetch = (source, input$) => {
 	const state$ = source.state.stream;
 	const { send$, send_$ } = Fetch(input$);
 
+	const groupChange$ = state$
+		.map(R.view(ST.curGroupLens))
+		.skipRepeats()
+	;
+
 	const showGroup$ = send_$("/group/show");
 
-	const showEmoji$ = state$
-		.map(R.view(ST.curGroupLens))
+	const showEmoji$ = groupChange$
 		.map(item => {
 			if (R.isNil(item)) {
 				return "/emoji/show";
@@ -23,12 +27,15 @@ const intentFetch = (source, input$) => {
 			}
 		})
 		.concatMap(send_$)
+		.multicast()
 	;
 
 	const createEmoji$ = send$("/emoji/create");
 	const updateEmoji$ = send$("/emoji/update");
 
 	return {
+		groupChange$,
+
 		showGroup$,
 		showEmoji$,
 		createEmoji$,
@@ -67,32 +74,47 @@ const update = (source, action, fetchAction) => {
 		}))
 		.chain(EmojiForm)
 		.chain(fetchAction.createEmoji$)
-		.map(a => R.over(ST.groupLens, R.append(a)))
+		.map(a => R.over(ST.emojiVecLens, R.append(a)))
 	;
 
-	const update$ = createEmoji$;
+	const update$ = fetchAction.showEmoji$
+		.map(R.set(ST.emojiVecLens))
+		.merge(createEmoji$)
+	;
 
 	return update$;
 };
 
 const connect = (source, input$) => {
+	const state$ = source.state.stream;
 	const fetchAction = intentFetch(source, input$);
 	const action = intent(source);
+
+	const curGroup$ = state$
+		.map(R.view(ST.curGroupLens))
+	;
 
 	const init$ = fetchAction.showGroup$
 		.map(group => ({
 			group,
-			curGroup: null
+			curGroup: null,
+			emojiVec: null 
 		}))
 		.map(R.always)
 	;
 
 	const update$ = update(source, action, fetchAction);
 
+	const emoji$ = state$
+		.map(R.view(ST.emojiVecLens))
+		.filter(R.complement(R.isNil))
+	;
+
 	return {
 		init$,
+		curGroup$,
 		group$: fetchAction.showGroup$,
-		emoji$: fetchAction.showEmoji$,
+		emoji$,
 		update$
 	};
 };
