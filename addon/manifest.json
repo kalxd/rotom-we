@@ -9,11 +9,18 @@
 		"storage",
 		"clipboardWrite"
 	],
+	"icons": {
+		"48": "static/icon/icon48.png"
+	},
 	"options_ui": {
 		"page": "html/option.html",
 		"browser_style": false
 	},
 	"sidebar_action": {
+		"default_icon": {
+			"16": "static/icon/icon48.png",
+			"32": "static/icon/icon48.png"
+		},
 		"default_panel": "html/sidebar.html",
 		"default_title": "云表情"
 	}
