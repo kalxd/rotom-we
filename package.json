@@ -5,6 +5,7 @@
     "@cycle/most-run": "^8.2.0",
     "@cycle/state": "^1.2.0",
     "most": "^1.7.3",
-    "ramda": "^0.26.1"
+    "ramda": "^0.26.1",
+    "sanctuary": "^1.0.0"
   }
 }
