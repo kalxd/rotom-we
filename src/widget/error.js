@@ -22,8 +22,7 @@ const renderMaybe = S.maybeToNullable;
 // renderEither :: Either String View -> View
 const renderEither = S.either(
 	msg => dom.div(".ui.red.message", dom.p(msg)),
-	S.I
-);
+)(S.I);
 
 exports.errorMsg = errorMsg;
 exports.renderMaybe = renderMaybe;

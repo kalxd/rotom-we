@@ -1,5 +1,6 @@
 const Most = require("most");
 const R = require("ramda");
+const S = require("sanctuary");
 
 // isNotEmpty :: String -> Bool
 const isNotEmpty = R.compose(
@@ -28,6 +29,16 @@ const throwWith = msg => {
 	return Most.throwError(e);
 };
 
+// swapEither :: Either a b -> Either b a
+const swapEither = x => {
+	if (S.isRight(x)) {
+		return S.Left(x.value);
+	}
+	else {
+		return S.Right(x.value);
+	}
+};
+
 // fmap :: (a -> b) -> Maybe a -> Maybe b
 const fmap = R.curry((f, x) => {
 	if (R.isNil(x)) {
@@ -52,5 +63,8 @@ exports.chooseIO = chooseIO;
 exports.oneOfIO = oneOfIO;
 
 exports.throwWith = throwWith;
+
+exports.swapEither = swapEither;
+
 exports.fmap = fmap;
 exports.renderWhen = renderWhen;

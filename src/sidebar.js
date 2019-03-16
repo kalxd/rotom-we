@@ -3,9 +3,9 @@ const Most = require("most");
 const dom = require("@cycle/dom");
 const isolate = require("@cycle/isolate").default;
 
-const { render } = require("./lib/ui");
 const Store = require("./lib/store");
 const { throwWith } = require("./lib/ext");
+const { render } = require("XGWidget/render");
 
 const PlaceholderV = require("./widget/placeholder");
 const ErrorV = require("./widget/error");

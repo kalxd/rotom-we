@@ -1,6 +1,7 @@
 /* 一些辅助函数 */
 const Most = require("most");
 const R = require("ramda");
+const S = require("sanctuary");
 
 // init :: a -> Stream (b -> a)
 const init = R.compose(
@@ -15,5 +16,27 @@ const initWith = R.curry((x, a) => {
 	;
 });
 
+// validate :: State -> Either [String] Object
+const validate = state => {
+	const { form, validate } = state;
+
+	// vs :: [(String, Either String String)]
+	const vs = R.pipe(
+		R.toPairs,
+		([key, f]) => f(form[key])
+	)(validate);
+
+	// es :: [String]
+	const es = S.lefts(vs);
+
+	if (R.isEmpty(lefts)) {
+		return S.Right(form);
+	}
+	else {
+		return S.left(es);
+	}
+};
+
 exports.init = init;
 exports.initWith = initWith;
+exports.validate = validate;
