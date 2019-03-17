@@ -4,8 +4,11 @@ const R = require("ramda");
 const errorLens = R.lensProp("error");
 const formLens = R.lensProp("form");
 
+// setError :: a -> State -> State
+const setError = R.set(errorLens);
+
 // clearError :: State -> State
-const clearError = R.set(errorLens, S.Nothing);
+const clearError = setError(S.Nothing);
 
 // setFormValue :: Lens s s -> a -> State -> State
 const setFormValue = R.curry((lens, a, state) => {
@@ -46,7 +49,11 @@ const getFormData = R.compose(
 // getFormData_ :: State -> Object
 const getFormData_ = R.view(formLens);
 
+// setFormData :: Object -> State -> State
+const setFormData = R.set(formLens);
+
 exports.errorLens = errorLens;
+exports.setError = setError;
 exports.clearError = clearError;
 
 exports.formLens = formLens;
@@ -56,3 +63,4 @@ exports.overFormValue = overFormValue;
 
 exports.getFormData = getFormData;
 exports.getFormData_ = getFormData_;
+exports.setFormData = setFormData;

@@ -23,17 +23,17 @@ const validate = state => {
 	// vs :: [(String, Either String String)]
 	const vs = R.pipe(
 		R.toPairs,
-		([key, f]) => f(form[key])
+		R.map(([key, f]) => f(form[key]))
 	)(validate);
 
 	// es :: [String]
 	const es = S.lefts(vs);
 
-	if (R.isEmpty(lefts)) {
+	if (R.isEmpty(es)) {
 		return S.Right(form);
 	}
 	else {
-		return S.left(es);
+		return S.Left(es);
 	}
 };
 

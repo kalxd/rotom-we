@@ -39,6 +39,12 @@ const swapEither = x => {
 	}
 };
 
+// swapToMaybe :: Either a b -> Maybe a
+const swapToMaybe = R.compose(
+	S.eitherToMaybe,
+	swapEither
+);
+
 // fmap :: (a -> b) -> Maybe a -> Maybe b
 const fmap = R.curry((f, x) => {
 	if (R.isNil(x)) {
@@ -65,6 +71,7 @@ exports.oneOfIO = oneOfIO;
 exports.throwWith = throwWith;
 
 exports.swapEither = swapEither;
+exports.swapToMaybe = swapToMaybe;
 
 exports.fmap = fmap;
 exports.renderWhen = renderWhen;

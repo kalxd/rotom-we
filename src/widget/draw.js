@@ -1,19 +1,30 @@
 const R = require("ramda");
 const S = require("sanctuary");
+const dom = require("@cycle/dom");
 
-// renderMaybe :: Maybe View -> View
-const renderMaybe = S.maybeToNullable;
+// renderError :: Show a => a -> View
+const renderError = msg => dom.div(".ui.red.message", S.show(msg));
 
-// renderEither :: (a -> View) -> Either String a -> View
-const renderEither = R.curry((f, x) => {
-	const g = msg => dom.div(".ui.red.message", msg);
+// drawMaybe :: Maybe View -> View
+const drawMaybe = S.maybeToNullable;
 
-	return S.either(g)(f)(x);
+// drawEither :: (a -> View) -> Either String a -> View
+const drawEither = R.curry((f, x) => {
+	return S.either(renderError)(f)(x);
 });
 
-// renderEither_ -> Either String View -> View
-const renderEither_ = renderEither(S.I);
+// drawEither_ -> Either String View -> View
+const drawEither_ = drawEither(S.I);
 
-exports.renderMaybe = renderMaybe;
-exports.renderEither = renderEither;
-exports.renderEither_ = renderEither_;
+// drawError :: Maybe String -> View
+const drawError = R.compose(
+	drawMaybe,
+	S.map(es => dom.div(".ui.red.message", [
+		dom.ul(".list", R.map(dom.li)(es))
+	]))
+);
+
+exports.drawMaybe = drawMaybe;
+exports.drawEither = drawEither;
+exports.drawEither_ = drawEither_;
+exports.drawError = drawError;
