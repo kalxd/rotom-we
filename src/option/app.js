@@ -5,9 +5,11 @@ const dom = require("@cycle/dom");
 
 const OptionS = require("XGState/option");
 const PageS = require("XGState/page");
-const V = require("XGLib/validate");
 
+const V = require("XGLib/validate");
 const Store = require("XGLib/store");
+
+const Alert = require("XGWidget/alert");
 
 const connect = require("./connect");
 const render = require("./render");
@@ -32,7 +34,8 @@ const main = (source, input$) => {
 	submit$
 		.map(Store.saveOption)
 		.awaitPromises()
-		.observe(_ => alert("保存成功"))
+		.chain(_ => Alert.show_("保存成功"))
+		.observe(R.identity)
 	;
 
 	return {

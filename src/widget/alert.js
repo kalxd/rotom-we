@@ -1,44 +1,44 @@
 const R = require("ramda");
+const S = require("sanctuary");
 const Most = require("most");
 const dom = require("@cycle/dom");
 const Modal = require("./modal");
-const Eff = require("XGLib/effect");
 
-const render = msg => dom.div(".ui.modal.transition.visible", [
-	dom.div(".header", msg),
+const Eff = require("XGLib/effect");
+const { drawMaybe } = require("XGWidget/draw");
+
+// render :: String -> Maybe String -> View
+const render = (msg, title) => dom.div(".ui.modal.transition.visible", [
+	drawMaybe(title => dom.div(".header", title))(title),
 	dom.div(".content", msg),
 	dom.div(".actions", [
 		dom.button(".ui.accept.primary.button", "OK")
 	])
 ]);
 
-// show :: String -> Stream Element
-const show = msg => {
-	console.info(msg);
-	const modal = Modal(source => {
-		const state$ = source.state.stream;
-		const init$ = Most.of(R.always(0));
+const main = R.curry((msg, title, source) => {
+	const accept$ = source.DOM.select(".accept")
+		.events("click")
+	;
 
-		const accept$ = source.DOM.select(".ui.accept.button")
-			.events("click")
-		;
+	return {
+		DOM: Most.of(render(msg, title)),
+		accept$
+	};
+});
 
-		const play$ = source.DOM.select(".play")
-			.events("click")
-			.constant(R.inc)
-		;
-
-		return {
-			accept$: state$.sampleWith(accept$),
-			DOM: state$.constant(render(msg)),
-			state: init$.merge(play$)
-		};
-	});
+// show :: String -> Nullable String -> Stream Element
+const show = R.curry((msg, title) => {
+	const modal = Modal(main(msg, S.toMaybe(title)));
 
 	return modal.sinks.accept$
 		.tap(modal.dispose)
 		.tap(Eff.hideMaskWhen)
 	;
-};
+});
+
+// show_ :: String -> Stream Element
+const show_ = R.flip(show)(null);
 
 exports.show = show;
+exports.show_ = show_;
