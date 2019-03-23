@@ -7,14 +7,26 @@ const Modal = require("./modal");
 const Eff = require("XGLib/effect");
 const { drawMaybe } = require("XGWidget/draw");
 
+const modalStyle = {
+	transition: "opacity .5s, transform .5s",
+	transform: "rotateX(60deg) translateY(-10px)",
+	opacity: 0,
+	delayed: {
+		opacity: 1,
+		transform: "rotateX(0) translateY(0)"
+	}
+};
+
 // render :: Maybe String -> String -> View
-const render = (title, msg) => dom.div(".ui.modal.transition.visible", [
-	drawMaybe(title => dom.div(".header", title))(title),
-	dom.div(".content", msg),
-	dom.div(".actions", [
-		dom.button(".ui.accept.primary.button", "OK")
+const render = (title, msg) => (
+	dom.div(".ui.modal.transition.visible", { style: modalStyle }, [
+		drawMaybe(title => dom.div(".header", title))(title),
+		dom.div(".content", msg),
+		dom.div(".actions", [
+			dom.button(".ui.accept.primary.button", "OK")
+		])
 	])
-]);
+);
 
 // main :: Nullable String -> String -> Source -> Sink
 const main = R.curry((title, msg, source) => {
