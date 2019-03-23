@@ -17,7 +17,7 @@ const runAt = R.curry((where, app) => {
 const render = runAt("#app");
 
 const alertError = e => {
-	const show = R.flip(Alert.show)("出错啦！");
+	const show = Alert.show("出错啦！");
 	const msg = (() => {
 		if (e instanceof Error) {
 			console.error(e);

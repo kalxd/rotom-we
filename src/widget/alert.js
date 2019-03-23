@@ -7,8 +7,8 @@ const Modal = require("./modal");
 const Eff = require("XGLib/effect");
 const { drawMaybe } = require("XGWidget/draw");
 
-// render :: String -> Maybe String -> View
-const render = (msg, title) => dom.div(".ui.modal.transition.visible", [
+// render :: Maybe String -> String -> View
+const render = (title, msg) => dom.div(".ui.modal.transition.visible", [
 	drawMaybe(title => dom.div(".header", title))(title),
 	dom.div(".content", msg),
 	dom.div(".actions", [
@@ -16,20 +16,21 @@ const render = (msg, title) => dom.div(".ui.modal.transition.visible", [
 	])
 ]);
 
-const main = R.curry((msg, title, source) => {
+// main :: Nullable String -> String -> Source -> Sink
+const main = R.curry((title, msg, source) => {
 	const accept$ = source.DOM.select(".accept")
 		.events("click")
 	;
 
 	return {
-		DOM: Most.of(render(msg, title)),
+		DOM: Most.of(render(title, msg)),
 		accept$
 	};
 });
 
-// show :: String -> Nullable String -> Stream Element
-const show = R.curry((msg, title) => {
-	const modal = Modal(main(msg, S.toMaybe(title)));
+// show :: Nullable String -> String -> Stream Element
+const show = R.curry((title, msg) => {
+	const modal = Modal(main(S.toMaybe(title), msg));
 
 	return modal.sinks.accept$
 		.tap(modal.dispose)
@@ -38,7 +39,7 @@ const show = R.curry((msg, title) => {
 });
 
 // show_ :: String -> Stream Element
-const show_ = R.flip(show)(null);
+const show_ = show(null);
 
 exports.show = show;
 exports.show_ = show_;
