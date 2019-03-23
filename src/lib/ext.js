@@ -29,6 +29,17 @@ const throwWith = msg => {
 	return Most.throwError(e);
 };
 
+// guardMaybe :: String -> Maybe a -> Stream a
+const guardMaybe = R.curry((msg, x) => {
+	if (S.isJust(x)) {
+		return Most.of(S.maybeToNullable(x));
+	}
+	else {
+		const e = S.Left(msg);
+		return Most.throwError(e);
+	}
+});
+
 // swapEither :: Either a b -> Either b a
 const swapEither = x => {
 	if (S.isRight(x)) {
@@ -69,6 +80,7 @@ exports.chooseIO = chooseIO;
 exports.oneOfIO = oneOfIO;
 
 exports.throwWith = throwWith;
+exports.guardMaybe = guardMaybe;
 
 exports.swapEither = swapEither;
 exports.swapToMaybe = swapToMaybe;
