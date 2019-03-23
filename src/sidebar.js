@@ -6,10 +6,9 @@ const isolate = require("@cycle/isolate").default;
 
 const Store = require("./lib/store");
 const { guardMaybe } = require("./lib/ext");
-const { render } = require("XGWidget/render");
 
-const PlaceholderV = require("./widget/placeholder");
-const ErrorV = require("./widget/error");
+const { render, alertError } = require("XGWidget/render");
+const PlaceholderV = require("XGWidget/placeholder");
 
 const App = require("./sidebar/index");
 
@@ -22,7 +21,7 @@ const main = source => {
 
 	const view = Most.of(PlaceholderV.loadingView)
 		.merge(sidebarApp.DOM)
-		.recoverWith(ErrorV.errorMsg)
+		.recoverWith(alertError)
 	;
 
 	return {
