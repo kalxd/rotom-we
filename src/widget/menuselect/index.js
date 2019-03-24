@@ -4,22 +4,19 @@ const connect = require("./connect");
 const render = require("./render");
 const ST = require("./state");
 
-// prop:
-// select :: Maybe a
-// itemVec :: [(String, a)]
-// class :: String
-const main = (source, prop) => {
-	const { visible$, change$ } = connect(source, prop);
+// main :: Source -> String -> [(String, a)] -> Maybe Int -> Sink
+const main = R.curry((source, klass, itemVec, select) => {
+	const { visible$, change$ } = connect(source, itemVec);
 
 	const state$ = visible$
 		.combine(
 			(visible, select) => ({
 				visible,
-				itemVec: prop.itemVec,
-				class: prop.class,
+				itemVec,
+				klass,
 				select
 			}),
-			change$.startWith(prop.select)
+			change$.startWith(select)
 		);
 	;
 
@@ -27,6 +24,6 @@ const main = (source, prop) => {
 		DOM: state$.map(render),
 		change$
 	};
-};
+});
 
 module.exports = main;

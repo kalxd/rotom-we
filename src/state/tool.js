@@ -27,7 +27,10 @@ const validate = state => {
 	)(validate);
 
 	// es :: [String]
-	const es = S.lefts(vs);
+	const es = R.pipe(
+		R.filter(S.isLeft),
+		R.map(v => v.value)
+	)(vs);
 
 	if (R.isEmpty(es)) {
 		return S.Right(form);

@@ -1,6 +1,7 @@
 const R = require("ramda");
+const S = require("sanctuary");
 const dom = require("@cycle/dom");
-const { renderWhen, fmap } = require("XGLib/ext");
+const { renderWhen, orEmpty } = require("XGLib/ext");
 
 const renderDropMenu = itemVec => (
 	dom.div(".menu.transition.visible", [
@@ -9,15 +10,15 @@ const renderDropMenu = itemVec => (
 );
 
 const render = state => {
-	console.info(state);
 	const title = R.pipe(
-		R.find(([_, item]) => item === state.select),
-		fmap(R.head)
-	)(state.itemVec);
+		S.map(select => R.find(([_, item]) => item === select)(state.itemVec)),
+		S.map(R.head),
+		orEmpty
+	)(state.select);
 		
 	return (
 		dom.div(
-			`.ui._xg_menuselect_.transition.dropdown${state.class}`,
+			`.ui._xg_menuselect_.transition.dropdown${state.klass}`,
 			{
 				class: {
 					active: state.visible

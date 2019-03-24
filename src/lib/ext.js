@@ -56,6 +56,9 @@ const swapToMaybe = R.compose(
 	swapEither
 );
 
+// orEmpty :: Maybe String -> String
+const orEmpty = S.fromMaybe("");
+
 // fmap :: (a -> b) -> Maybe a -> Maybe b
 const fmap = R.curry((f, x) => {
 	if (R.isNil(x)) {
@@ -84,6 +87,7 @@ exports.guardMaybe = guardMaybe;
 
 exports.swapEither = swapEither;
 exports.swapToMaybe = swapToMaybe;
+exports.orEmpty = orEmpty;
 
 exports.fmap = fmap;
 exports.renderWhen = renderWhen;

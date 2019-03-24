@@ -67,20 +67,16 @@ const update = (source, action, fetchAction) => {
 	const createEmoji$ = state$
 		.map(state => {
 			const select = R.view(ST.curGroupLens)(state);
-			const group = R.pipe(
-				R.view(ST.groupLens),
-				R.map(item => ([item.name, item]))
-			)(state);
-
-			return [group, select];
+			return [R.view(ST.groupLens, state), select];
 		})
 		.sampleWith(action.createEmojiClick$)
-		.map(([itemVec, select]) => ({
-			itemVec,
-			select,
-			class: ".fluid.selection"
-		}))
-		.chain(EmojiForm)
+		.chain(([groupVec, select]) => EmojiForm(
+			".fuild.selection",
+			S.Nothing,
+			S.Nothing,
+			groupVec,
+			S.toMaybe(select),
+		))
 		.chain(fetchAction.createEmoji$)
 		.map(a => R.over(ST.emojiVecLens, R.append(a)))
 	;
@@ -120,28 +116,31 @@ const connect = (source, input$) => {
 
 	const updateEmoji = emoji => {
 		return state$
-			.map(R.view(ST.groupLens))
-			.chain(groupVec => {
-				const index = R.findIndex(
-					group => group.group_id === emoji.id,
+			.map(state => ([
+				R.view(ST.groupLens, state),
+				R.view(ST.emojiVecLens, state)
+			]))
+			.chain(([groupVec, emojiVec]) => {
+				const select = R.find(
+					group => emoji.group_id === group.id,
 					groupVec
 				);
-				const lens = R.lensIndex(index);
-				const itemVec = R.map(group => ([group.name, group]))(groupVec);
 
-				const prop = {
-					name: emoji.name,
-					link: emoji.link,
-					itemVec,
-					select: R.view(lens, groupVec),
-					class: ".fluid.selection"
-				};
+				const emojiIndex = R.findIndex(R.propEq("id", emoji))(emojiVec);
 
-				return EmojiForm(prop)
+				return EmojiForm(
+					".fluid.selection",
+					S.Just(emoji.name),
+					S.Just(emoji.link),
+					groupVec,
+					S.toMaybe(select)
+				)
 					.chain(fetchAction.updateEmoji$(emoji.id))
-					.map(R.set(lens))
+					.map(R.set(R.lensIndex(emojiIndex)))
+					.map(R.over(ST.emojiVecLens))
 				;
 			})
+			.take(1)
 		;
 	};
 

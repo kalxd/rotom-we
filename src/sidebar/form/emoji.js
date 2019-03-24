@@ -1,110 +1,190 @@
 const R = require("ramda");
+const S = require("sanctuary");
 const Most = require("most");
 const dom = require("@cycle/dom");
 
-const { isNotEmpty } = require("XGLib/ext");
+const V = require("XGLib/validate");
+const { swapToMaybe, orEmpty } = require("XGLib/ext");
 
-const Dialog = require("XGWidget/dialog");
-const Alert = require("XGWidget/alert");
+const PageS = require("XGState/page");
+const ToolS = require("XGState/tool");
+
+const Modal = require("XGWidget/modal");
 const MenuSelect = require("XGWidget/menuselect");
+const { drawDialog, drawError } = require("XGWidget/draw");
 
-const mkdata = (name, link, item) => ({
-	name,
-	link,
-	group_id: item.id
+// nameLens :: Lens Form String
+const nameLens = R.lensProp("name");
+
+// linkLens :: Lens Form String
+const linkLens = R.lensProp("link");
+
+// selectLens :: Lens Form (Maybe Object)
+const selectLens = R.lensProp("select");
+
+// mkinit :: Maybe String -> Maybe String -> Maybe Object -> State
+const mkinit = (name, link, select) => ({
+	form: {
+		// name :: String
+		name: orEmpty(name),
+		// link :: String
+		link: orEmpty(link),
+		// group_id :: Maybe Object
+		select: select
+	},
+
+	validate: {
+		link: V.notEmpty("链接"),
+		select: S.maybeToEither("选择分组")
+	},
+
+	error: S.Nothing
 });
 
-const intent = (source, prop) => {
+const intent = source => {
+	const state$ = source.state.stream;
+
 	const nameChange$ = source.DOM.select("._xg_name_input_")
 		.events("change")
 		.map(e => e.target.value.trim())
-		.startWith(prop.name)
-		.filter(s => s && s.length)
+		.merge(state$.map(PageS.viewFormValue(nameLens)))
+		.skipRepeats()
 	;
 
 	const linkChange$ = source.DOM.select("._xg_link_input_")
 		.events("change")
 		.map(e => e.target.value.trim())
-		.startWith(prop.link)
-		.filter(s => s && s.length)
+		.merge(state$.map(PageS.viewFormValue(linkLens)))
+		.skipRepeats()
+	;
+
+	const accept$ = source.DOM.select(".accept")
+		.events("click")
+	;
+
+	const reject$ = source.DOM.select(".reject")
+		.events("click")
 	;
 
 	return {
 		nameChange$,
-		linkChange$
+		linkChange$,
+
+		accept$,
+		reject$
 	};
 };
 
-const render = R.curry((prop, groupView) => {
-	return dom.div(".ui.form", [
-		dom.div(".ui.field", [
-			dom.label("名称"),
-			dom.input("._xg_name_input_", {
-				attrs: {
-					placeholder: "表情名称",
-					value: prop.name
-				}
-			})
+// render :: String -> (State, View) -> View
+const render = R.curry((title, [{ form, error }, selectView]) => (
+	drawDialog(S.Just(title), [
+		dom.div(".ui.form", [
+			dom.div(".ui.field", [
+				dom.label("名称"),
+				dom.input("._xg_name_input_", {
+					attrs: {
+						placeholder: "表情名称",
+						value: form.name
+					}
+				})
+			]),
+			dom.div(".ui.field.required", [
+				dom.label("链接"),
+				dom.input("._xg_link_input_", {
+					attrs: {
+						placeholder: "表情链接地址",
+						value: form.link
+					}
+				})
+			]),
+			dom.div(".ui.field.required", [
+				dom.label("分组"),
+				selectView
+			])
 		]),
-		dom.div(".ui.field.required", [
-			dom.label("链接"),
-			dom.input("._xg_link_input_", {
-				attrs: {
-					placeholder: "表情链接地址",
-					value: prop.link
-				}
-			})
-		]),
-		dom.div(".ui.field.required", [
-			dom.label("分组"),
-			groupView
-		])
-	]);
-});
 
-// prop:
-// groupVec :: [(String, a)]
-// select :: Maybe a
-// class :: String
-// name :: Maybe String
-// link :: Maybe String
-const app = R.curry((prop, source) => {
-	const action = intent(source, prop);
+		drawError(error)
+	])
+));
 
-	const menuSelect = MenuSelect(source, prop);
+// app :: String -> Maybe String -> Maybe String -> [Object] -> Maybe Object -> Source -> Sink
+const app = R.curry((klass, name, link, groupVec, select, source) => {
+	const modalTitle = S.maybe("添加新表情")(S.K("编辑表情"))(select);
 
-	const groupChange$ = menuSelect.change$
-		.startWith(prop.select)
-		.filter(R.complement(R.isNil))
+	const state$ = source.state.stream;
+	const action = intent(source);
+
+	const init$ = Most.of(mkinit(name, link, select))
+		.map(R.always)
 	;
 
-	const change$ = Most.combineArray(
-		mkdata,
-		[
-			action.nameChange$,
-			action.linkChange$,
-			groupChange$
-		]
+	const itemVec = R.map(group => ([group.name, group]))(groupVec);
+	const menuSelect = MenuSelect(
+		source,
+		klass,
+		itemVec,
+		select
 	);
 
+	const view$ = state$
+		.combine(R.pair, menuSelect.DOM)
+	;
+
+	const validate$ = state$
+		.sampleWith(action.accept$)
+		.map(ToolS.validate)
+	;
+
+	const error$ = validate$
+		.map(swapToMaybe)
+		.map(PageS.setError)
+	;
+
+	const clear$ = state$
+		.sampleWith(action.nameChange$
+			.merge(action.linkChange$)
+			.merge(menuSelect.change$)
+		)
+		.constant(PageS.clearError)
+	;
+
+	const update$ = action.nameChange$
+		.map(PageS.setFormValue(nameLens))
+		.merge(action.linkChange$.map(PageS.setFormValue(linkLens)))
+		.merge(menuSelect.change$.map(PageS.setFormValue(selectLens)))
+		.merge(error$)
+		.merge(clear$)
+	;
+
+	const accept$ = state$
+		.sampleWith(validate$.filter(S.isRight))
+		.map(PageS.getFormData_)
+	;
+
 	return {
-		DOM: menuSelect.DOM.map(render(prop)),
-		change$
+		DOM: view$.map(render(modalTitle)),
+		state: init$.merge(update$),
+		reject$: action.reject$,
+		accept$
 	};
 });
 
-const main = prop => {
-	const dialog = Dialog(app(prop), "编辑表情");
+const main = R.curry((klass, name, link, groupVec, select) => {
+	const modal = Modal(app(klass, name, link, groupVec, select));
 
-	return dialog.appSink.change$
-		.filter(R.where({
-			name: isNotEmpty,
-			link: isNotEmpty,
-			group_id: R.is(Number)
+	modal.reject$.observe(modal.hideModal);
+
+	return modal.accept$
+		.map(R.evolve({
+			select: S.maybeToNullable
 		}))
-		.sampleWith(dialog.accept$)
-		.tap(dialog.hideDialog)
+		.map(form => ({
+			name: form.name,
+			link: form.link,
+			group_id: form.select.id
+		}))
+		.tap(modal.hideModal)
 	;
-};
+});
 
 module.exports = main;

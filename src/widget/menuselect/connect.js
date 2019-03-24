@@ -1,4 +1,5 @@
 const R = require("ramda");
+const S = require("sanctuary");
 const Eff = require("XGLib/effect");
 const ST = require("./state");
 
@@ -17,7 +18,7 @@ const intent = source => {
 	};
 };
 
-const connect = (source, prop) => {
+const connect = (source, itemVec) => {
 	const action = intent(source);
 
 	const visible$ = action.selfClick$
@@ -30,8 +31,8 @@ const connect = (source, prop) => {
 		.map(e => e.target)
 		.map(Eff.nodeIndex)
 		.skipRepeats()
-		.map(index => prop.itemVec[index])
-		.map(R.last)
+		.map(index => S.at(index)(itemVec))
+		.map(S.map(R.last))
 	;
 
 	return {
