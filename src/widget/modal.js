@@ -1,3 +1,4 @@
+const R = require("ramda");
 const { setup } = require("@cycle/most-run");
 const dom = require("@cycle/dom");
 const { withState } = require("@cycle/state");
@@ -16,9 +17,15 @@ const app = main => {
 	const { run, sinks } = setup(withState(isolate(main)), driver);
 	const dispose = run();
 
+	// hideModal :: () -> IO ()
+	const hideModal = R.compose(
+		Eff.hideMaskWhen,
+		dispose
+	);
+
 	return {
-		dispose,
-		sinks
+		...sinks,
+		hideModal
 	};
 };
 

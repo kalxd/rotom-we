@@ -1,4 +1,5 @@
 const R = require("ramda");
+const S = require("sanctuary");
 const Fetch = require("XGLib/fetch");
 
 const EmojiForm = require("./form/emoji");
@@ -145,8 +146,7 @@ const connect = (source, input$) => {
 	};
 
 	const createGroup = () => {
-		return GroupForm({})
-			.map(R.objOf("name"))
+		return GroupForm(S.Nothing)
 			.chain(fetchAction.createGroup$)
 			.map(a => R.over(ST.groupLens, R.append(a)))
 		;
@@ -156,17 +156,12 @@ const connect = (source, input$) => {
 		const index = R.findIndex(R.equals(group), groupVec);
 		const lens = R.lensIndex(index);
 
-		const prop = {
-			name: group.name
-		};
-
 		const groupLens = R.compose(
 			ST.groupLens,
 			lens,
 		);
 
-		return GroupForm(prop)
-			.map(R.objOf("name"))
+		return GroupForm(S.Just(group.name))
 			.chain(fetchAction.updateGroup$(group.id))
 			.map(a => R.compose(
 				R.set(ST.curGroupLens, a),

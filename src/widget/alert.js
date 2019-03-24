@@ -44,9 +44,8 @@ const main = R.curry((title, msg, source) => {
 const show = R.curry((title, msg) => {
 	const modal = Modal(main(S.toMaybe(title), msg));
 
-	return modal.sinks.accept$
-		.tap(modal.dispose)
-		.tap(Eff.hideMaskWhen)
+	return modal.accept$
+		.tap(modal.hideModal)
 	;
 });
 

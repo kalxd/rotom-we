@@ -10,7 +10,7 @@ const setError = R.set(errorLens);
 // clearError :: State -> State
 const clearError = setError(S.Nothing);
 
-// setFormValue :: Lens s s -> a -> State -> State
+// setFormValue :: Lens State a -> a -> State -> State
 const setFormValue = R.curry((lens, a, state) => {
 	const lens_ = R.compose(
 		formLens,
@@ -20,7 +20,7 @@ const setFormValue = R.curry((lens, a, state) => {
 	return R.set(lens_, a, state);
 });
 
-// viewFormValue :: Lens s s -> State -> a
+// viewFormValue :: Lens State a -> State -> a
 const viewFormValue = R.curry((lens, state) => {
 	const lens_ = R.compose(
 		formLens,
@@ -30,7 +30,7 @@ const viewFormValue = R.curry((lens, state) => {
 	return R.view(lens_, state);
 });
 
-// overFormValue :: Lens s s -> (a -> a) -> State -> State
+// overFormValue :: Lens State a -> (a -> a) -> State -> State
 const overFormValue = R.curry((lens, f, state) => {
 	const lens_ = R.compose(
 		formLens,
@@ -52,6 +52,16 @@ const getFormData_ = R.view(formLens);
 // setFormData :: Object -> State -> State
 const setFormData = R.set(formLens);
 
+// selectValidForm :: Stream State -> Stream Form
+const selectValidForm = stream$ => {
+	return stream$
+		.filter(R.where({
+			error: S.isNothing
+		}))
+		.map(getFormData_)
+	;
+};
+
 exports.errorLens = errorLens;
 exports.setError = setError;
 exports.clearError = clearError;
@@ -64,3 +74,4 @@ exports.overFormValue = overFormValue;
 exports.getFormData = getFormData;
 exports.getFormData_ = getFormData_;
 exports.setFormData = setFormData;
+exports.selectValidForm = selectValidForm;
