@@ -1,3 +1,4 @@
+const Most = require("most");
 const R = require("ramda");
 const S = require("sanctuary");
 const Fetch = require("XGLib/fetch");
@@ -120,6 +121,7 @@ const connect = (source, input$) => {
 				R.view(ST.groupLens, state),
 				R.view(ST.emojiVecLens, state)
 			]))
+			.until(Most.of().delay(10))
 			.chain(([groupVec, emojiVec]) => {
 				const select = R.find(
 					group => emoji.group_id === group.id,
@@ -140,7 +142,6 @@ const connect = (source, input$) => {
 					.map(R.over(ST.emojiVecLens))
 				;
 			})
-			.take(1)
 		;
 	};
 
