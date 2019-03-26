@@ -8,15 +8,9 @@ const renderCard = emoji => dom.div(".ui.raised.card", [
 	dom.div(".content", emoji.name),
 
 	dom.div(".extra.content", [
-		dom.div(".left.floated", [
-			dom.div(".ui.basic.mini.buttons", [
-				dom.button(".ui._xg_edit_.button", "编辑"),
-				dom.button(".ui._xg_delete_.button", "删除")
-			])
-		]),
-
-		dom.div(".right.floated", [
-			dom.button(".ui._xg_copy_.mini.button", "复制")
+		dom.div(".ui.two.mini.buttons", [
+			dom.button(".ui.green.basic._xg_edit_.button", "编辑"),
+			dom.button(".ui.red.basic._xg_delete_.button", "删除")
 		])
 	])
 ]);
