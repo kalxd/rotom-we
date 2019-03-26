@@ -3,7 +3,7 @@
 	"name": "rotom-we",
 	"version": "0.1.0",
 	"author": "XG.Ley",
-	"description": "云表情",
+	"description": "嘻嘻哈哈发表情。",
 	"permissions": [
 		"<all_urls>",
 		"storage",
@@ -22,6 +22,6 @@
 			"32": "static/icon/icon48.png"
 		},
 		"default_panel": "html/sidebar.html",
-		"default_title": "云表情"
+		"default_title": "斗个开心"
 	}
 }
