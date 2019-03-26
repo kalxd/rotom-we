@@ -7,4 +7,4 @@
 
 # 协议
 
-AGPL v3
+GPL v3
