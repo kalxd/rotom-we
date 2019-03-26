@@ -6,6 +6,7 @@ const Fetch = require("XGLib/fetch");
 const EmojiForm = require("./form/emoji");
 const GroupForm = require("./form/group");
 const Alert = require("XGWidget/alert");
+const Confirm = require("XGWidget/confirm");
 
 const ST = require("./state");
 
@@ -38,6 +39,7 @@ const intentFetch = (source, input$) => {
 
 	const createEmoji$ = send$("/emoji/create");
 	const updateEmoji$ = R.curry((id, data) => send$(`/emoji/${id}/update`, data));
+	const deleteEmoji$ = emoji => send_$(`/emoji/${emoji.id}/delete`);
 
 	return {
 		groupChange$,
@@ -48,7 +50,8 @@ const intentFetch = (source, input$) => {
 		createGroup$,
 		updateGroup$,
 		createEmoji$,
-		updateEmoji$
+		updateEmoji$,
+		deleteEmoji$
 	};
 };
 
@@ -145,6 +148,14 @@ const connect = (source, input$) => {
 		;
 	};
 
+	const deleteEmoji = emoji => {
+		return Confirm.show_("确认删除该表情？")
+			.constant(emoji)
+			.chain(fetchAction.deleteEmoji$)
+			.constant(R.over(ST.emojiVecLens, R.without([emoji])))
+		;
+	};
+
 	const createGroup = () => {
 		return GroupForm(S.Nothing)
 			.chain(fetchAction.createGroup$)
@@ -179,7 +190,8 @@ const connect = (source, input$) => {
 
 		createGroup,
 		updateGroup,
-		updateEmoji
+		updateEmoji,
+		deleteEmoji
 	};
 };
 

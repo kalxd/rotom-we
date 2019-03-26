@@ -47,12 +47,17 @@ const main = (source, input$) => {
 		.chain(action.updateEmoji)
 	;
 
+	const deleteEmoji$ = emojiList.delete$
+		.chain(action.deleteEmoji)
+	;
+
 	const update$ = nav.change$
 		.map(R.set(ST.curGroupLens))
 		.merge(nav.change$.constant(R.set(ST.emojiVecLens, null)))
 		.merge(createGroup$)
 		.merge(updateGroup$)
 		.merge(updateEmoji$)
+		.merge(deleteEmoji$)
 	;
 
 	return {

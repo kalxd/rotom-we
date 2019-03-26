@@ -18,7 +18,8 @@ const main = (source, emoji$, change$) => {
 
 	return {
 		DOM: view,
-		edit$: action.edit$
+		edit$: action.edit$,
+		delete$: action.delete$
 	};
 };
 

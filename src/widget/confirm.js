@@ -30,7 +30,7 @@ const show = R.curry((title, msg) => {
 	modal.reject$.observe(modal.hideModal);
 
 	return modal.accept$.tap(modal.hideModal);
-};
+});
 
 // show_ :: String -> Stream ()
 const show_ = show(null);
