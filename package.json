@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "@cycle/dom": "^22.3.0",
+    "@cycle/dom": "^22.4.0",
     "@cycle/isolate": "^5.0.0",
-    "@cycle/most-run": "^8.2.0",
-    "@cycle/state": "^1.2.0",
+    "@cycle/most-run": "^8.3.0",
+    "@cycle/state": "^1.4.0",
     "most": "^1.7.3",
     "ramda": "^0.26.1",
-    "sanctuary": "^1.0.0"
+    "zen-observable": "^0.8.14"
   }
 }
