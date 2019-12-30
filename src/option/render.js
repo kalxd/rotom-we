@@ -1,34 +1,37 @@
 const dom = require("@cycle/dom");
-const { drawError } = require("XGWidget/draw");
 
-const render = ({ form, error }) => dom.div(".ui.form", [
-	dom.div(".field.required", [
-		dom.label("地址"),
-		dom.input(".addr-input", {
-			attrs: {
-				placeholder: "毕竟云表情"
-			},
-			props: {
-				value: form.addr
-			}
-		})
+// render :: () -> View
+const render = () => dom.div([
+	dom.header(".panel-section.panel-section-header", [
+		dom.div(".text-section-header", "小秘密")
 	]),
 
-	dom.div(".field.required", [
-		dom.label("验证码"),
-		dom.input(".token-input", {
-			attrs: {
-				placeholder: "路边帅哥送你的一串神秘代码"
-			},
-			props: {
-				value: form.token
-			}
-		})
+	dom.div(".notification.is-danger", [
+		dom.button(".delete"),
+		"出错啦！"
 	]),
 
-	dom.button(".ui.primary.button", "保存"),
+	dom.div([
+		dom.div(".field", [
+			dom.label(".label", "服务器地址"),
+			dom.div(".control", [
+				dom.input(".input")
+			])
+		]),
 
-	drawError(error),
+		dom.div(".field", [
+			dom.label(".label", "神秘代码"),
+			dom.div(".control", [
+				dom.input(".input")
+			])
+		]),
+
+		dom.div(".field", [
+			dom.div(".control", [
+				dom.button(".button.is-info", "保存")
+			])
+		])
+	]),
 ]);
 
 module.exports = render;
