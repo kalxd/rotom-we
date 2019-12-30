@@ -14,7 +14,7 @@
 	},
 	"options_ui": {
 		"page": "html/option.html",
-		"browser_style": true
+		"browser_style": false
 	},
 	"sidebar_action": {
 		"default_icon": {

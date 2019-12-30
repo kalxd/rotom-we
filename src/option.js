@@ -9,19 +9,27 @@ const main = source => {
 				dom.div(".text-section-header", "小秘密")
 			]),
 
-			dom.div(".panel-section.panel-section-formElements", [
-				dom.div(".panel-formElements-item", [
-					dom.label("服务器地址"),
-					dom.input()
+			dom.div([
+				dom.div(".field", [
+					dom.label(".label", "服务器地址"),
+					dom.div(".control", [
+						dom.input(".input")
+					])
 				]),
 
-				dom.div(".panel-formElements-item", [
-					dom.label("神秘代码"),
-					dom.input()
+				dom.div(".field", [
+					dom.label(".label", "神秘代码"),
+					dom.div(".control", [
+						dom.input(".input")
+					])
+				]),
+
+				dom.div(".field", [
+					dom.div(".control", [
+						dom.button(".button.is-info", "保存")
+					])
 				])
 			]),
-
-			dom.button("保存")
 		])
 	);
 
