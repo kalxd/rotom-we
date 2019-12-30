@@ -1,35 +1,37 @@
 const Most = require("most");
-const S = require("sanctuary");
-const isolate = require("@cycle/isolate").default;
-
-const OptionS = require("XGState/option");
-
-const Store = require("XGLib/store");
-
-const { render } = require("XGWidget/render");
-const PlaceholderV = require("XGWidget/placeholder");
-
-const OptionApp = require("./option/app");
+const { run } = require("@cycle/most-run");
+const dom = require("@cycle/dom");
 
 const main = source => {
-	const state$ = source.state.stream;
-	const option$ = Most.fromPromise(Store.getOption())
-		.map(S.fromMaybe({
-			addr: "",
-			token: ""
-		}))
-		.multicast()
-	;
+	const DOM$ = Most.of(
+		dom.div([
+			dom.header(".panel-section.panel-section-header", [
+				dom.div(".text-section-header", "小秘密")
+			]),
 
-	const optionApp = isolate(OptionApp)(source, option$);
+			dom.div(".panel-section.panel-section-formElements", [
+				dom.div(".panel-formElements-item", [
+					dom.label("服务器地址"),
+					dom.input()
+				]),
 
-	const loadingView = Most.of(PlaceholderV.loadingView);
-	const appView = optionApp.DOM;
+				dom.div(".panel-formElements-item", [
+					dom.label("神秘代码"),
+					dom.input()
+				])
+			]),
+
+			dom.button("保存")
+		])
+	);
 
 	return {
-		DOM: loadingView.merge(appView),
-		state: optionApp.state
+		DOM$
 	};
 };
 
-render(main);
+const driver = {
+	DOM$: dom.makeDOMDriver("#app")
+};
+
+run(main, driver);
