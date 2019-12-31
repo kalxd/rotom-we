@@ -6,29 +6,24 @@ const render = () => dom.div([
 		dom.div(".text-section-header", "小秘密")
 	]),
 
-	dom.div(".notification.is-danger", [
-		dom.button(".delete"),
-		"出错啦！"
-	]),
-
 	dom.div([
 		dom.div(".field", [
 			dom.label(".label", "服务器地址"),
 			dom.div(".control", [
-				dom.input(".input")
+				dom.input(".input.__addr__")
 			])
 		]),
 
 		dom.div(".field", [
 			dom.label(".label", "神秘代码"),
 			dom.div(".control", [
-				dom.input(".input")
+				dom.input(".input.__token__")
 			])
 		]),
 
 		dom.div(".field", [
 			dom.div(".control", [
-				dom.button(".button.is-info", "保存")
+				dom.button(".button.is-info.__save__", "保存")
 			])
 		])
 	]),
