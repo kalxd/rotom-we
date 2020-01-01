@@ -19,15 +19,22 @@ const render = loadState => {
 };
 
 const main = source => {
-	const DOM$ = Most.fromPromise(AppState.读取选项())
-		.concatMap(state => OptionW(source, state).DOM$)
+	// appState$ :: Stream (Maybe AppState)
+	const appState$ = Most.fromPromise(AppState.读取选项())
+		.multicast()
+	;
+
+	const optionApp = OptionW(source, appState$);
+
+	const DOM$ = optionApp.DOM$
 		.map(LoadState.pure)
 		.startWith(LoadState.empty)
 		.map(render)
 	;
 
 	return {
-		DOM$
+		DOM$,
+		state: optionApp.state
 	};
 };
 

@@ -31,22 +31,56 @@ const intent = source => {
 	};
 };
 
-// main :: Source -> AppState -> Application
-const main = R.curry((source, appState) => {
+// main :: Source -> Steam (Maybe AppState) -> Application
+const main = R.curry((source, appState$) => {
 	const Action = intent(source);
+	const state$ = source.state.stream;
 
-	const 更新$ = Action.addr更新$
-		.merge(Action.token更新$)
-		.scan((acc, f) => f(acc), State.生于AppState(appState))
+	const 错误信息$ = state$
+		.map(R.view(State.errLens))
 	;
 
-	更新$.sampleWith(Action.保存$)
-		.tap(console.info)
-		.drain()
+	const messageApp = MessageW(source, 错误信息$);
+
+	const 保存结果$ = state$
+		.sampleWith(Action.保存$)
+		.map(State.validate)
+		.map(R.set(State.errLens))
+	;
+
+	const 初始状态$ = appState$
+		.take(1)
+		.map(State.生于AppState)
+		.map(R.always)
+	;
+
+	const state = 初始状态$
+		.merge(保存结果$)
+		.merge(Action.addr更新$)
+		.merge(Action.token更新$)
+	;
+
+	const DOM$ = state$.combine(
+		R.pair,
+		messageApp.DOM$.startWith(null)
+	)
+		.map(R.apply(render))
+	;
+
+	// 保存下来
+	state$
+		.sampleWith(Action.保存$)
+		.filter(R.compose(
+			R.isNil,
+			R.view(State.errLens)
+		))
+		.map(State.还于AppState)
+		.observe(AppState.保存选项)
 	;
 
 	return {
-		DOM$: 更新$.map(render)
+		DOM$,
+		state
 	};
 });
 

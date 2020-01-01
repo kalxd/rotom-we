@@ -1,5 +1,10 @@
 const R = require("ramda");
 const Most = require("most");
+const dom = require("@cycle/dom");
+
+const {
+	renderWhen,
+} = require("XGLib/ext");
 
 /**
  * type State = { 显示 :: Bool
@@ -20,25 +25,24 @@ const 显示lens = R.lensProp("显示");
 const 提示信息lens = R.lensProp("提示信息");
 
 // render :: State -> View
-const render = state => {
-	if (!state.显示) {
-		return null;
-	}
-
-	return dom.div(".notification.is-danger", [
+const render = state => renderWhen(state.显示, () => (
+	dom.div(".notification.is-danger", [
 		dom.button(".delete.__close__"),
 		state.提示信息
-	]);
-};
+	])
+));
 
-// main :: Source -> Stream String -> Application
+// main :: Source -> Stream (Maybe String) -> Application
 const main = R.curry((source, 信息$) => {
 	const 点击关闭$ = source.DOM$.select(".__close__")
 		.events("click")
 	;
 
 	const 新信息$ = 信息$
-		.map(提示信息 => ({ 显示: true, 提示信息 }))
+		.map(提示信息 => ({
+			显示: R.complement(R.isNil)(提示信息),
+			提示信息
+		}))
 	;
 
 	const 关闭$ = 信息$
