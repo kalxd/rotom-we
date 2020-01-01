@@ -23,7 +23,7 @@ const render = R.curry((state, messageDOM) => {
 						".input.__addr__",
 						{
 							props: {
-								placeholder: "填写可信服务器地址。"
+								placeholder: "填写可信服务器地址。",
 								value: addr
 							}
 						}
