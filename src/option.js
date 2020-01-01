@@ -1,9 +1,10 @@
 const Most = require("most");
-const { run } = require("@cycle/most-run");
 const dom = require("@cycle/dom");
 
 const LoadState = require("XGState/load");
 const AppState = require("XGState/index");
+
+const { runAtApp } = require("XGWidget/run");
 
 const OptionW = require("./option/index");
 
@@ -19,7 +20,6 @@ const render = loadState => {
 
 const main = source => {
 	const DOM$ = Most.fromPromise(AppState.读取选项())
-		.delay(5000)
 		.concatMap(state => OptionW(source, state).DOM$)
 		.map(LoadState.pure)
 		.startWith(LoadState.empty)
@@ -31,8 +31,4 @@ const main = source => {
 	};
 };
 
-const driver = {
-	DOM$: dom.makeDOMDriver("#app")
-};
-
-run(main, driver);
+runAtApp(main);
