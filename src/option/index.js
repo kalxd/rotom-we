@@ -31,20 +31,13 @@ const intent = source => {
 	};
 };
 
-// main :: Source -> Application
-const main = source => {
+// main :: Source -> AppState -> Application
+const main = R.curry((source, appState) => {
 	const Action = intent(source);
 
-	const 初始状态$ = Most.fromPromise(AppState.读取选项())
-		.map(State.生于AppState)
-		.map(s => R.always(s))
-	;
-
-	const 更新$ = 初始状态$
-		.merge(Action.addr更新$)
+	const 更新$ = Action.addr更新$
 		.merge(Action.token更新$)
-		.scan((acc, f) => f(acc), State.默认状态)
-		.skip(1)
+		.scan((acc, f) => f(acc), State.生于AppState(appState))
 	;
 
 	更新$.sampleWith(Action.保存$)
@@ -55,6 +48,6 @@ const main = source => {
 	return {
 		DOM$: 更新$.map(render)
 	};
-};
+});
 
 module.exports = main;
