@@ -1,22 +1,24 @@
+const R = require("ramda");
 const Most = require("most");
 const dom = require("@cycle/dom");
 
 const { runAtApp } = require("XGWidget/run");
-/*
-const R = require("ramda");
-const Store = require("./lib/store");
-*/
+const AppState = require("XGState/app");
+const LoadState = require("XGState/load");
 
-/*
-const { render, alertError } = require("XGWidget/render");
-const PlaceholderV = require("XGWidget/placeholder");
-*/
-
-// const App = require("./sidebar/index");
+const LoadW = require("./sidebar/widget/load");
 
 // main :: Source -> Application
 const main = source => {
-	const DOM$ = Most.of(dom.div(".ui.header", "hello"));
+	const appState$ = AppState.读取选项()
+		.map(R.view(AppState.addrLens))
+		.map(LoadState.pure)
+		.startWith(LoadState.empty)
+	;
+
+	const DOM$ = appState$.map(LoadW.render)
+		.map(s => dom.div(".ui.header", s))
+	;
 
 	return {
 		DOM$
