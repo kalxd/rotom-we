@@ -1,8 +1,8 @@
 const Most = require("most");
 const dom = require("@cycle/dom");
 
+const AppState = require("XGState/app");
 const LoadState = require("XGState/load");
-const AppState = require("XGState/index");
 
 const { runAtApp } = require("XGWidget/run");
 

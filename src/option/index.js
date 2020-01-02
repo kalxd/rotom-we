@@ -1,7 +1,7 @@
 const R = require("ramda");
 const Most = require("most");
 
-const AppState = require("XGState");
+const AppState = require("XGState/app");
 const State = require("./state");
 const render = require("./render");
 

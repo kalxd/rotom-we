@@ -7,7 +7,7 @@
 const R = require("ramda");
 const { isEmpty } = require("XGLib/ext");
 
-const AppState = require("../state");
+const AppState = require("XGState/app");
 
 // 默认状态 :: OptionState
 const 默认状态 = {

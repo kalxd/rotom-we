@@ -1,5 +1,4 @@
 /** 全局状态，一般指用户保存的数据。 */
-const Store = browser.storage.local;
 
 /**
  * type AppState = { token :: String
@@ -7,6 +6,7 @@ const Store = browser.storage.local;
  * 				   }
  */
 const R = require("ramda");
+const Store = browser.storage.local;
 
 const STORE_KEY = "option";
 
