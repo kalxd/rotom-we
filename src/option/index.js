@@ -5,7 +5,7 @@ const AppState = require("XGState");
 const State = require("./state");
 const render = require("./render");
 
-const MessageW = require("XGWidget/message");
+const MessageW = require("./widget/message");
 
 const intent = source => {
 	const addr更新$ = source.DOM$.select(".__addr__")
