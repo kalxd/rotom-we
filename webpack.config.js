@@ -17,8 +17,7 @@ const readEntry = R.compose(
 const config = {
 	mode: "none",
 
-	// entry: readEntry(["option", "sidebar"]),
-	entry: readEntry(["option"]),
+	entry: readEntry(["option", "sidebar"]),
 
 	output: {
 		filename: "[name].js",

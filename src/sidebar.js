@@ -1,33 +1,26 @@
-const R = require("ramda");
-const S = require("sanctuary");
 const Most = require("most");
 const dom = require("@cycle/dom");
-const isolate = require("@cycle/isolate").default;
 
+const { runAtApp } = require("XGWidget/run");
+/*
+const R = require("ramda");
 const Store = require("./lib/store");
-const { guardMaybe } = require("./lib/ext");
+*/
 
+/*
 const { render, alertError } = require("XGWidget/render");
 const PlaceholderV = require("XGWidget/placeholder");
+*/
 
-const App = require("./sidebar/index");
+// const App = require("./sidebar/index");
 
+// main :: Source -> Application
 const main = source => {
-	const option$ = Most.fromPromise(Store.getOption())
-		.flatMap(guardMaybe("信息不完整"))
-	;
-
-	const sidebarApp = isolate(App)(source, option$);
-
-	const view = Most.of(PlaceholderV.loadingView)
-		.merge(sidebarApp.DOM)
-		.recoverWith(alertError)
-	;
+	const DOM$ = Most.of(dom.div(".ui.header", "hello"));
 
 	return {
-		DOM: view,
-		state: sidebarApp.state
+		DOM$
 	};
 };
 
-render(main);
+runAtApp(main);

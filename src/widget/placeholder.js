@@ -24,5 +24,7 @@ const loadingView = dom.div(".ui.placeholder", [
 	dom.div(".paragraph", repeatLine(5))
 ]);
 
-exports.loadingCardView = loadingCardView;
-exports.loadingView = loadingView;
+module.exports = {
+	loadingCardView,
+	loadingView
+};
