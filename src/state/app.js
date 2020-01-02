@@ -6,6 +6,7 @@
  * 				   }
  */
 const R = require("ramda");
+const Most = require("most");
 const Store = browser.storage.local;
 
 const STORE_KEY = "option";
@@ -21,10 +22,11 @@ const 保存选项 = 状态 => {
 	Store.set({ [STORE_KEY]: 状态 });
 };
 
-// 读取选项 :: () -> IO AppState
+// 读取选项 :: () -> Stream (Maybe AppState)
 const 读取选项 = () => {
-	return Store.get(STORE_KEY)
-		.then(R.prop(STORE_KEY))
+	return Most.fromPromise(Store.get(STORE_KEY))
+		.map(R.prop(STORE_KEY))
+		.multicast()
 	;
 };
 

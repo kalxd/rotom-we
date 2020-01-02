@@ -19,12 +19,7 @@ const render = loadState => {
 };
 
 const main = source => {
-	// appState$ :: Stream (Maybe AppState)
-	const appState$ = Most.fromPromise(AppState.读取选项())
-		.multicast()
-	;
-
-	const optionApp = OptionW(source, appState$);
+	const optionApp = OptionW(source, AppState.读取选项());
 
 	const DOM$ = optionApp.DOM$
 		.map(LoadState.pure)
