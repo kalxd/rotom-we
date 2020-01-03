@@ -2,69 +2,18 @@ const R = require("ramda");
 const Most = require("most");
 const dom = require("@cycle/dom");
 
-const Nav = require("./nav");
-const EmojiList = require("./emojilist");
+const LoadState = require("XGState/load");
 
-const connect = require("./connect");
-const ST = require("./state");
+const LoadV = require("./view/load");
 
-const main = (source, input$) => {
-	const state$ = source.state.stream;
-	const action = connect(source, input$);
-
-	const group$ = action.group$
-		.multicast()
-	;
-
-	const nav = Nav(source);
-	const emojiList = EmojiList(
-		source,
-		action.emoji$,
-		action.curGroup$
-	);
-
-	const mainView = Most.combine(
-		(navView, emojiListView) => dom.div([
-			navView,
-			emojiListView
-		]),
-		nav.DOM,
-		emojiList.DOM
-	);
-
-	const createGroup$ = nav.new$
-		.chain(action.createGroup)
-	;
-
-	const updateGroup$ = state$
-		.map(R.view(ST.groupLens))
-		.combine(R.pair, nav.edit$)
-		.sampleWith(nav.edit$)
-		.chain(action.updateGroup)
-	;
-
-	const updateEmoji$ = emojiList.edit$
-		.chain(action.updateEmoji)
-	;
-
-	const deleteEmoji$ = emojiList.delete$
-		.chain(action.deleteEmoji)
-	;
-
-	const update$ = nav.change$
-		.map(R.set(ST.curGroupLens))
-		.merge(nav.change$.constant(R.set(ST.emojiVecLens, null)))
-		.merge(createGroup$)
-		.merge(updateGroup$)
-		.merge(updateEmoji$)
-		.merge(deleteEmoji$)
+// main :: Source -> Stream (Maybe AppState) -> Application
+const main = (source, appState$) => {
+	const DOM$ = Most.of(LoadState.empty)
+		.map(LoadV.render)
 	;
 
 	return {
-		DOM: mainView,
-		state: action.init$
-			.merge(action.update$)
-			.merge(update$)
+		DOM$
 	};
 };
 

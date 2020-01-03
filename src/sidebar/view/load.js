@@ -2,12 +2,12 @@ const R = require("ramda");
 const dom = require("@cycle/dom");
 const LoadState = require("XGState/load");
 
-const 占位卡片 = dom.div(".ui.card", [
-
+const 加载中 = dom.div(".ui.segment", [
+	dom.div(".ui.active.inverted.dimmer", [
+		dom.div(".ui.text.loader", "加载中……")
+	]),
+	dom.div(".ui.placeholder", R.repeat(dom.div(".line"), 5))
 ]);
-
-// 几张卡片 :: Int -> [View]
-const 几张卡片 = R.repeat(占位卡片);
 
 // render :: LoadState View -> View
 const render = state => {
@@ -15,7 +15,7 @@ const render = state => {
 		return R.view(LoadState.内容lens, state);
 	}
 	else {
-		return "加载中";
+		return 加载中;
 	}
 };
 
