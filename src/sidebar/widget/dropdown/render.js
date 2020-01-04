@@ -6,7 +6,7 @@ const 生成样式 = state => {
 	const 显示 = R.view(State.显示lens, state);
 
 	const 菜单 = (b => {
-		const base = ".ui.selection.dropdown.__self__";
+		const base = ".ui.selection.mini.dropdown.__self__";
 		if (b) {
 			return `${base}.active`;
 		}
