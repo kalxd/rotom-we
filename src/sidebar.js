@@ -4,8 +4,11 @@ const dom = require("@cycle/dom");
 
 const { runAtApp } = require("XGWidget/run");
 const AppState = require("XGState/app");
+const LoadState = require("XGState/load");
 
 const SidebarW = require("./sidebar/index");
+const LoadV = require("./sidebar/view/load");
+const State = require("./sidebar/state");
 
 // renderError :: Error -> View
 const renderError = ({ message }) => dom.div(".ui.negative.message", [
@@ -39,6 +42,9 @@ const main = source => {
 	const sidebarApp = SidebarW(source, appState$);
 
 	const DOM$ = sidebarApp.DOM$
+		.map(LoadState.pure)
+		.startWith(LoadState.empty)
+		.map(LoadV.render)
 		.recoverWith(R.compose(
 			Most.of,
 			renderError

@@ -27,7 +27,7 @@ const 分组lens = R.lensProp("分组");
 // 选中分组lens :: Lens SidebarState (Maybe 分组)
 const 选中分组lens = R.lensProp("选中分组");
 
-// 获取分组列表 :: SidebarState -> Stream SidebarState
+// 获取分组列表 :: SidebarState -> Stream [分组]
 const 获取分组列表 = state => state.fetch.GET_("/分组/列表");
 
 // 更新分组列表 :: SidebarState -> Stream (SidebarState -> SidebarState)
