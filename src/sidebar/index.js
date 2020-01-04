@@ -1,6 +1,10 @@
 const R = require("ramda");
 const Most = require("most");
 const dom = require("@cycle/dom");
+const Isolate = require("@cycle/isolate").default;
+
+const DropdownW = require("./widget/dropdown");
+const DropdownState = require("./widget/dropdown/state");
 
 const LoadState = require("XGState/load");
 const Fetch = require("XGLib/fetch");
@@ -23,7 +27,19 @@ const main = (source, appState$) => {
 		.map(R.always)
 	;
 
+	// 下接菜单
+	const dropdownState$ = state$
+		.map(state => {
+			const a = R.view(State.选中分组lens, state);
+			const b = R.view(State.分组lens, state);
+			return DropdownState.生成(a, b);
+		})
+	;
+
+	const dropdownApp = Isolate(DropdownW)(source, dropdownState$);
+
 	const DOM$ = state$
+		.combine(R.pair, dropdownApp.DOM$)
 		.tap(console.info)
 		.map(render)
 	;
