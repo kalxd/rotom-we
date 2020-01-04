@@ -1,49 +1,103 @@
 const Most = require("most");
 const R = require("ramda");
 
-// send :: Object -> String -> Object -> Promise a
-const send = R.curry((option, endpoint, data) => {
-	const url = `${option.addr}`;
-	const headers = {
-		"content-type": "application/json",
-		"rotom-yjvgma": option.token
-	};
+const AppState = require("XGState/app");
 
+// querify :: {|r} -> String
+const querify = R.compose(
+	R.join("&"),
+	R.map(R.join("=")),
+	R.toPairs
+);
+
+// sendBody :: String -> {|r} -> String -> String -> {|r} -> Stream JSON
+const sendBody = R.curry((method, 请求头, 域名, 请求路径, body) => {
 	const init = {
-		method: "post",
-		body: R.pipe(R.defaultTo({}), JSON.stringify)(data),
-		headers
+		method,
+		headers: 请求头,
+		body: JSON.stringify(body)
 	};
 
-	return fetch(`${url}${endpoint}`, init)
-		.then(r => {
-			if (r.ok) {
-				return r;
-			}
+	const 完整地址 = `${域名}${请求路径}`;
 
-			const e = new Error(r.statusText);
-			return Promise.reject(e);
-		})
-		.then(r => r.json())
-	;
+	const r = fetch(完整地址, init).then(r => r.json());
+	return Most.fromPromise(r);
 });
 
+// sendQuery :: String -> {|r} -> String -> String -> {|r} -> Stream JSON
+const sendQuery = R.curry((method, 请求头, 域名, 请求路径, query) => {
+	const init = {
+		method,
+		headers: 请求头
+	};
 
-const setup = input$ => {
-	// send :: String -> Object -> Stream a
-	const send$ = R.curry((endpoint, data) => {
-		return input$
-			.map(option => send(option, endpoint, data))
-			.awaitPromises()
-		;
-	});
+	const 完整地址 = (域名 => {
+		const 完整地址 = `${域名}${请求路径}`;
+		if (R.isEmpty(query)) {
+			return 完整地址;
+		}
+		else {
+			return `${完整地址}?${querify(query)}`;
+		}
+	})(域名);
 
-	const send_$ = R.flip(send$)(null);
+	const r = fetch(完整地址, init).then(r => r.json());
+	return Most.fromPromise(r);
+});
+
+// 组装 :: AppState -> FetchReader
+const 组装 = state => {
+	const [addr, token] = AppState.各个值(state);
+
+	const 请求头 = {
+		"content-type": "application/json",
+		"rotom": token
+	};
+
+	// GET :: String -> {|r} -> Stream JSON
+	const GET = sendQuery("GET", 请求头, addr);
+
+	// GET_ :: String-> Stream JSON
+	const GET_ = R.flip(GET)({});
+
+	// POST :: String -> {|r} -> Stream JSON
+	const POST = sendBody("POST", 请求头, addr);
+
+	// POST_ :: String -> Stream JSON
+	const POST_ = R.flip(POST)({});
+
+	// PATCH :: String -> {|r} -> Stream JSON
+	const PATCH = sendBody("PATCH", 请求头, addr);
+
+	// PATCH_ :: String -> Stream JSON
+	const PATCH_ = R.flip(PATCH)({});
+
+	// PUT :: String -> {|r} -> Stream JSON
+	const PUT = sendBody("PUT", 请求头, addr);
+
+	// PUT_ :: String -> Stream JSON
+	const PUT_ = R.flip(PUT)({});
+
+	// DELETE :: String -> {|r} -> Stream JSON
+	const DELETE = sendQuery("DELETE", 请求头, addr);
+
+	// DELETE_ :: String -> Stream JSON
+	const DELETE_ = R.flip(DELETE)({});
 
 	return {
-		send$,
-		send_$
+		GET,
+		GET_,
+		POST,
+		POST_,
+		PATCH,
+		PATCH_,
+		PUT,
+		PUT_,
+		DELETE,
+		DELETE_
 	};
 };
 
-module.exports = setup;
+module.exports = {
+	组装
+};

@@ -17,6 +17,9 @@ const tokenLens = R.lensProp("token");
 // addrLens :: Lens AppState String
 const addrLens = R.lensProp("addr");
 
+// 各个值 :: AppState -> (String, String)
+const 各个值 = R.props(["addr", "token"]);
+
 // 保存选项 :: AppState -> IO ()
 const 保存选项 = 状态 => {
 	Store.set({ [STORE_KEY]: 状态 });
@@ -33,6 +36,7 @@ const 读取选项 = () => {
 module.exports = {
 	tokenLens,
 	addrLens,
+	各个值,
 	保存选项,
 	读取选项
 };
