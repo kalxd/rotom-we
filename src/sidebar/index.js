@@ -5,10 +5,10 @@ const Isolate = require("@cycle/isolate").default;
 
 const DropdownW = require("./widget/dropdown");
 const DropdownState = require("./widget/dropdown/state");
-
 const GroupFormW = require("./widget/groupform");
 
 const LoadState = require("XGState/load");
+const GroupState = require("XGState/group");
 const Fetch = require("XGLib/fetch");
 const State = require("./state");
 const render = require("./render");
@@ -73,8 +73,16 @@ const main = (source, appState$) => {
 		.map(render)
 	;
 
+	// state :: Stream (SidebarState -> SidebarState)
 	const state = 初始状态$
 		.merge(Action.新建分组$)
+		.merge(dropdownApp.选择$
+			.map(id => state => {
+				const 分组列表 = R.view(State.分组lens, state);
+				const 分组 = R.find(GroupState.就是这个(id), 分组列表);
+				return R.set(State.选中分组lens, 分组, state);
+			})
+		)
 	;
 
 	return {

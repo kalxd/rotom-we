@@ -3,8 +3,23 @@ const R = require("ramda");
 const State = require("./state");
 const render = require("./render");
 
+const intent = source => {
+	const 选择$ = source.DOM$.select(".__item__")
+		.events("click")
+		.map(e => e.target.dataset.id)
+		.map(Number)
+		.skipRepeats()
+	;
+
+	return {
+		选择$
+	};
+};
+
 // main :: Source -> Stream State -> Application
 const main = R.curry((source, input$) => {
+	const Action = intent(source);
+
 	const 外部点击$ = source.DOM$.select(":root")
 		.events("click")
 	;
@@ -27,7 +42,8 @@ const main = R.curry((source, input$) => {
 	const DOM$ = state$.map(render);
 
 	return {
-		DOM$
+		DOM$,
+		选择$: Action.选择$
 	};
 });
 

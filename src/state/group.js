@@ -23,6 +23,9 @@ const 创建日期lens = R.lensProp("创建日期");
 // 常用字段 :: Group -> (Int, String, Date)
 const 常用字段 = R.props(["id", "名字", "创建日期"]);
 
+// 就是这个 :: Int -> Group -> Bool
+const 就是这个 = R.propEq("id");
+
 /**
  * type GroupPostForm = { 名字 :: String }
  */
@@ -44,6 +47,7 @@ module.exports = {
 	用户idlens,
 	创建日期lens,
 	常用字段,
+	就是这个,
 
 	生成创建表单,
 	生成更新表单

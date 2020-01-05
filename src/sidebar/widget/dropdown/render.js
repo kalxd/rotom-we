@@ -39,7 +39,8 @@ const 显示文本 = state => {
 		return dom.div(".default.text", "未选择");
 	}
 	else {
-		return dom.div(".text", 选择分组.名称);
+		const [_, 名字] = GroupState.常用字段(选择分组);
+		return dom.div(".text", 名字);
 	}
 };
 
