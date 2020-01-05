@@ -65,9 +65,9 @@ const bodyClick$ = Most.fromEvent("click", document)
 	.multicast()
 ;
 
-exports.showMaskWhen = showMaskWhen;
-exports.hideMaskWhen = hideMaskWhen;
-
-exports.nodeIndex = nodeIndex;
-
-exports.bodyClick$ = bodyClick$;
+module.exports = {
+	showMaskWhen,
+	hideMaskWhen,
+	nodeIndex,
+	bodyClick$
+};

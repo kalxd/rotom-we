@@ -1,47 +1,34 @@
 const R = require("ramda");
-const S = require("sanctuary");
 const Most = require("most");
 const dom = require("@cycle/dom");
 
-const PageS = require("XGState/page");
-const ToolS = require("XGState/tool");
-
-const V = require("XGLib/validate");
 const Modal = require("XGWidget/modal");
 const { drawDialog, drawError } = require("XGWidget/draw");
 
-const { swapToMaybe } = require("XGLib/ext");
+/**
+ * type FormState = { 名字 :: String }
+ */
 
-// nameLens :: Lens Form String
-const nameLens = R.lensProp("name");
+// 新建表单 :: String -> FormState
+const 新建表单 = 名字 => ({ 名字 });
 
-// mkinit :: Maybe String -> State
-const mkinit = name => ({
-	form: {
-		name: S.fromMaybe("")(name)
-	},
-	validate: {
-		name: V.notEmpty("名称")
-	},
-	error: S.Nothing
-});
+// 名字lens :: Lens FormState String
+const 名字lens = R.lensProp("名字");
 
 const intent = source => {
 	const state$ = source.state.stream;
 
-	const name$ = source.DOM.select("._xg_name_")
+	const name$ = source.DOM$.select(".__name__")
 		.events("change")
 		.map(e => e.target.value.trim())
-		.merge(state$.map(PageS.viewFormValue(nameLens)))
-		.skipRepeats()
 	;
 
-	const accept$ = source.DOM.select(".accept")
+	const accept$ = source.DOM$.select(".accept")
 		.events("click")
 		.debounce(200)
 	;
 
-	const reject$ = source.DOM.select(".reject")
+	const reject$ = source.DOM$.select(".reject")
 		.events("click")
 		.debounce(200)
 	;
@@ -53,73 +40,59 @@ const intent = source => {
 	};
 };
 
-// render :: String -> String -> View
-const render = R.curry((title, { form, error }) => (
-	drawDialog(S.Just(title), [
+// render :: String -> FormState -> View
+const render = R.curry((标题, state) => {
+	const 分组名字 = R.view(名字lens, state);
+
+	return drawDialog(标题, [
 		dom.div(".ui.form", [
 			dom.div(".ui.field.required", [
 				dom.label("分组名称"),
-				dom.input("._xg_name_", {
+				dom.input(".__name__", {
 					props: {
-						value: form.name
+						value: 分组名字
 					}
 				})
 			])
 		]),
-		drawError(error)
-	])
-));
+	]);
+});
 
-// app :: Maybe String -> Source -> Sink
-const app = R.curry((name, source) => {
-	const modalTitle = S.maybe("新建分组")(S.K("编辑分组"))(name);
+// app :: Maybe String -> Source -> Application
+const app = R.curry((分组名字, source) => {
+	const 标题 = (s => {
+		if (R.isNil(s)) {
+			return "新建分组";
+		}
+		else {
+			return "编辑分组";
+		}
+	})(分组名字);
 
 	const state$ = source.state.stream;
-	const init$ = Most.of(name)
-		.map(mkinit)
+
+	const 初始$ = Most.of(分组名字)
+		.map(新建表单)
 		.map(R.always)
 	;
 
-	const action = intent(source);
+	const Action = intent(source);
 
-	const clear$ = state$
-		.sampleWith(action.name$.debounce(200))
-		.skipRepeats()
-		.constant(PageS.clearError)
-	;
+	const state = 初始$;
 
-	const validate$ = state$
-		.sampleWith(action.accept$)
-		.map(ToolS.validate)
-	;
-
-	const error$ = validate$
-		.map(swapToMaybe)
-		.map(PageS.setError)
-	;
-
-	const update$ = action.name$
-		.map(PageS.setFormValue(nameLens))
-		.merge(error$)
-		.merge(clear$)
-	;
-
-	const accept$ = validate$
-		.filter(S.isRight)
-		.map(x => x.value)
-	;
+	const DOM$ = state$.map(render(标题));
 
 	return {
-		DOM: state$.map(render(modalTitle)),
-		state: init$.merge(update$),
-		accept$,
-		reject$: action.reject$
+		DOM$,
+		state,
+		accept$: Action.accept$,
+		reject$: Action.reject$
 	};
 });
 
 // main :: Maybe String -> Stream String
-const main = name => {
-	const modal = Modal(app(name));
+const main = 分组名字 => {
+	const modal = Modal(app(分组名字));
 
 	modal.reject$.observe(modal.hideModal);
 

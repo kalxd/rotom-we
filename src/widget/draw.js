@@ -1,6 +1,7 @@
 const R = require("ramda");
-const S = require("sanctuary");
 const dom = require("@cycle/dom");
+
+const { fmap } = require("XGLib/ext");
 
 const dialogStyle = {
 	transition: "opacity .3s, transform .3s",
@@ -12,31 +13,13 @@ const dialogStyle = {
 	}
 };
 
-
-// renderError :: Show a => a -> View
-const renderError = msg => dom.div(".ui.red.message", S.show(msg));
-
-// drawMaybe :: (a -> View) -> Maybe View -> View
-const drawMaybe = R.curry((f, x) => {
-	const y = S.map(f)(x);
-	return S.maybeToNullable(y);
-});
-
-// drawEither :: (a -> View) -> Either String a -> View
-const drawEither = R.curry((f, x) => {
-	return S.either(renderError)(f)(x);
-});
-
-// drawEither_ -> Either String View -> View
-const drawEither_ = drawEither(S.I);
+// renderError :: String -> View
+const renderError = msg => dom.div(".ui.red.message", msg);
 
 // drawError :: Maybe String -> View
-const drawError = R.compose(
-	S.maybeToNullable,
-	S.map(es => dom.div(".ui.red.message", [
-		dom.ul(".list", R.map(dom.li)(es))
-	]))
-);
+const drawError = fmap(s => (
+	dom.div(".ui.red.message", s)
+));
 
 // drawModal :: View -> View
 const drawModal = view => (
@@ -46,7 +29,7 @@ const drawModal = view => (
 // drawDialog :: Maybe title -> View -> View
 const drawDialog = R.curry((title, view) => (
 	drawModal([
-		drawMaybe(title => dom.div(".header", title))(title),
+		fmap(title => dom.div(".header", title))(title),
 		dom.div(".content", view),
 		dom.div(".actions", [
 			dom.button(".ui.reject.button", "不好"),
@@ -55,9 +38,8 @@ const drawDialog = R.curry((title, view) => (
 	])
 ));
 
-exports.drawMaybe = drawMaybe;
-exports.drawEither = drawEither;
-exports.drawEither_ = drawEither_;
-exports.drawError = drawError;
-exports.drawModal = drawModal;
-exports.drawDialog = drawDialog;
+module.exports = {
+	drawError,
+	drawModal,
+	drawDialog
+};

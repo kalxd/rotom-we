@@ -6,13 +6,27 @@ const Isolate = require("@cycle/isolate").default;
 const DropdownW = require("./widget/dropdown");
 const DropdownState = require("./widget/dropdown/state");
 
+const GroupW = require("./form/group");
+
 const LoadState = require("XGState/load");
 const Fetch = require("XGLib/fetch");
 const State = require("./state");
 const render = require("./render");
 
+const intent = source => {
+	const 新建分组$ = source.DOM$.select(".__add-group__")
+		.events("click")
+	;
+
+	return {
+		新建分组$
+	};
+};
+
 // main :: Source -> Stream AppState -> Application
 const main = (source, appState$) => {
+	const Action = intent(source);
+
 	const state$ = source.state.stream;
 
 	// 初始状态$ :: Stream (a -> SidebarState)
@@ -25,6 +39,11 @@ const main = (source, appState$) => {
 			;
 		})
 		.map(R.always)
+	;
+
+	const 新分组$ = Action.新建分组$
+		.flatMap(_ => GroupW("abc"))
+		.observe(console.log)
 	;
 
 	// 下接菜单

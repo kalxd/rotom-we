@@ -31,6 +31,7 @@ const intent = source => {
 	};
 };
 
+// render :: String -> View -> View
 const render = R.curry((title, appView) => (
 	dom.div(".ui.modal.transition.visible", { style: modalStyle }, [
 		fmap(title => dom.div(".header", title))(title),
@@ -42,16 +43,17 @@ const render = R.curry((title, appView) => (
 	])
 ));
 
-const main = (App, title) => {
+// main :: (Source -> Application) -> String -> Application
+const main = R.curry((App, title) => {
 	const modal = Modal(source => {
 		const appSink = App(source);
 		const { reject$, accept$ } = intent(source);
 
 		const sink = {
 			appSink,
-			DOM: appSink.DOM.map(render(title)),
-			reject$,
-			accept$
+			DOM$: appSink.DOM$.map(render(title)),
+			reject$: reject$.take(1),
+			accept$: accept$.take(1)
 		};
 
 		return R.unless(
@@ -74,6 +76,6 @@ const main = (App, title) => {
 		...modal.sinks,
 		hideDialog
 	};
-};
+});
 
 module.exports = main;
