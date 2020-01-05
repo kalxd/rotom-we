@@ -21,7 +21,7 @@ const intent = source => {
 		.events("click")
 	;
 
-	// 新建分组$ :: Stream (State -> State)
+	// 新建分组$ :: Stream (SidebarState -> SidebarState)
 	const 新建分组$ = state$
 		.sampleWith(点击添加分组$)
 		.map(state => {

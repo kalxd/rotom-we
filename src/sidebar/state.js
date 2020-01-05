@@ -1,12 +1,7 @@
 const R = require("ramda");
 const Most = require("most");
 
-/**
- * type 分组 = { id :: Int
- * 			   , 名字 :: String
- * 			   , 创建日期 :: String
- * 			   }
- */
+const GroupState = require("XGState/group");
 
 /**
  * type SidebarState = { fetch :: FetchReader
@@ -38,12 +33,9 @@ const 更新分组列表 = state => {
 	;
 };
 
-// 新建分组 :: SidebarState -> String -> Stream 分组
+// 新建分组 :: SidebarState -> String -> Stream Group
 const 新建分组 = R.curry((state, 名字) => {
-	const body = {
-		名字
-	};
-
+	const body = GroupState.生成创建表单(名字);
 	return state.fetch.POST("/分组/创建", body);
 });
 
