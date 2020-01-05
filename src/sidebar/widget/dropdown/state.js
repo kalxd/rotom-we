@@ -2,28 +2,28 @@ const R = require("ramda");
 
 /**
  * type State = { 显示 :: Bool
- * 				, 当前选择 :: Maybe 分组
- * 				, 列表元素 :: [分组]
+ * 				, 当前选择 :: Maybe Group
+ * 				, 列表元素 :: [Group]
  * 				}
  */
 
-// 生成 :: Maybe 分组 -> [分组] -> State
+// 生成 :: Maybe Group -> [Group] -> State
 const 生成 = R.curry((当前选择, 列表元素) => ({
 	显示: false,
 	当前选择,
 	列表元素
 }));
 
-// 初始 :: [分组] -> State
+// 初始 :: [Group] -> State
 const 初始 = 生成(null);
 
 // 显示lens :: Lens State Bool
 const 显示lens = R.lensProp("显示");
 
-// 当前选择lens :: Lens State (Maybe 分组)
+// 当前选择lens :: Lens State (Maybe Group)
 const 当前选择lens = R.lensProp("当前选择");
 
-// 列表元素lens :: Lens State [分组]
+// 列表元素lens :: Lens State [Group]
 const 列表元素lens = R.lensProp("列表元素");
 
 module.exports = {
