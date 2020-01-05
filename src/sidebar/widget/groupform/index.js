@@ -3,46 +3,37 @@ const Most = require("most");
 const dom = require("@cycle/dom");
 
 const Modal = require("XGWidget/modal");
-const { drawDialog, drawError } = require("XGWidget/draw");
+const { drawDialog } = require("XGWidget/draw");
 
-/**
- * type FormState = { 名字 :: String }
- */
-
-// 新建表单 :: String -> FormState
-const 新建表单 = 名字 => ({ 名字 });
-
-// 名字lens :: Lens FormState String
-const 名字lens = R.lensProp("名字");
+const State = require("./state");
 
 const intent = source => {
 	const state$ = source.state.stream;
 
-	const name$ = source.DOM$.select(".__name__")
+	const 名字$ = source.DOM$.select(".__name__")
 		.events("change")
 		.map(e => e.target.value.trim())
 	;
 
-	const accept$ = source.DOM$.select(".accept")
+	const 确定$ = source.DOM$.select(".accept")
 		.events("click")
 		.debounce(200)
 	;
 
-	const reject$ = source.DOM$.select(".reject")
+	const 取消$ = source.DOM$.select(".reject")
 		.events("click")
 		.debounce(200)
 	;
 
 	return {
-		name$,
-		accept$,
-		reject$
+		确定$: 名字$.sampleWith(确定$),
+		取消$
 	};
 };
 
 // render :: String -> FormState -> View
 const render = R.curry((标题, state) => {
-	const 分组名字 = R.view(名字lens, state);
+	const 分组名字 = R.view(State.名字lens, state);
 
 	return drawDialog(标题, [
 		dom.div(".ui.form", [
@@ -72,7 +63,7 @@ const app = R.curry((分组名字, source) => {
 	const state$ = source.state.stream;
 
 	const 初始$ = Most.of(分组名字)
-		.map(新建表单)
+		.map(State.新建表单)
 		.map(R.always)
 	;
 
@@ -85,8 +76,8 @@ const app = R.curry((分组名字, source) => {
 	return {
 		DOM$,
 		state,
-		accept$: Action.accept$,
-		reject$: Action.reject$
+		accept$: Action.确定$,
+		reject$: Action.取消$
 	};
 });
 

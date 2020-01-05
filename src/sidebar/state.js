@@ -1,4 +1,5 @@
 const R = require("ramda");
+const Most = require("most");
 
 /**
  * type 分组 = { id :: Int
@@ -37,11 +38,21 @@ const 更新分组列表 = state => {
 	;
 };
 
+// 新建分组 :: SidebarState -> String -> Stream 分组
+const 新建分组 = R.curry((state, 名字) => {
+	const body = {
+		名字
+	};
+
+	return state.fetch.POST("/分组/创建", body);
+});
+
 module.exports = {
 	生成,
 	分组lens,
 	选中分组lens,
 
 	获取分组列表,
-	更新分组列表
+	更新分组列表,
+	新建分组
 };

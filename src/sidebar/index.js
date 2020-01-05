@@ -6,7 +6,7 @@ const Isolate = require("@cycle/isolate").default;
 const DropdownW = require("./widget/dropdown");
 const DropdownState = require("./widget/dropdown/state");
 
-const GroupW = require("./form/group");
+const GroupFormW = require("./widget/groupform");
 
 const LoadState = require("XGState/load");
 const Fetch = require("XGLib/fetch");
@@ -14,8 +14,23 @@ const State = require("./state");
 const render = require("./render");
 
 const intent = source => {
-	const 新建分组$ = source.DOM$.select(".__add-group__")
+	const state$ = source.state.stream;
+
+	// 点击添加分组$ :: Stream ()
+	const 点击添加分组$ = source.DOM$.select(".__add-group__")
 		.events("click")
+	;
+
+	// 新建分组$ :: Stream (State -> State)
+	const 新建分组$ = state$
+		.sampleWith(点击添加分组$)
+		.map(state => {
+			return GroupFormW(null)
+				.concatMap(State.新建分组(state))
+				.map(新分组 => R.over(State.分组lens, R.prepend(新分组)))
+			;
+		})
+		.switchLatest()
 	;
 
 	return {
@@ -41,11 +56,6 @@ const main = (source, appState$) => {
 		.map(R.always)
 	;
 
-	const 新分组$ = Action.新建分组$
-		.flatMap(_ => GroupW("abc"))
-		.observe(console.log)
-	;
-
 	// 下接菜单
 	const dropdownState$ = state$
 		.map(state => {
@@ -63,7 +73,9 @@ const main = (source, appState$) => {
 		.map(render)
 	;
 
-	const state = 初始状态$;
+	const state = 初始状态$
+		.merge(Action.新建分组$)
+	;
 
 	return {
 		DOM$,
