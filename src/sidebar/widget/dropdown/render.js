@@ -28,7 +28,16 @@ const 生成样式 = state => {
 
 	return {
 		菜单,
-		下拉菜单
+		下拉菜单,
+		菜单动画: {
+			transition: "opacity .3s, transform .3s",
+			opacity: 0,
+			transform: "rotateX(-90deg)",
+			delayed: {
+				opacity: 1,
+				transform: "rotateY(0)"
+			}
+		}
 	};
 };
 
@@ -64,7 +73,7 @@ const render = state => {
 	const 样式 = 生成样式(state);
 	const 分组列表 = R.view(State.列表元素lens, state);
 
-	return dom.div(样式.菜单, [
+	return dom.div(样式.菜单, { style: 样式.菜单动画 }, [
 		dom.i(".dropdown.icon"),
 		显示文本(state),
 		dom.div(
