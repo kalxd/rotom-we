@@ -1,31 +1,33 @@
 const Most = require("most");
 const R = require("ramda");
-const S = require("sanctuary");
 
 const Modal = require("./modal");
 const { drawDialog } = require("./draw");
 
-// main :: Maybe String -> String -> Source -> Sink
-const main = R.curry((title, msg, source) => {
-	const accept$ = source.DOM.select(".accept")
+// main :: Maybe String -> String -> Source -> Application
+const main = R.curry((标题, 内容, source) => {
+	const accept$ = source.DOM$.select(".accept")
 		.events("click")
 	;
 
-	const reject$ = source.DOM.select(".reject")
+	const reject$ = source.DOM$.select(".reject")
 		.events("click")
+	;
+
+	const DOM$ = Most.of()
+		.constant(drawDialog(标题, 内容))
 	;
 
 	return {
-		DOM: Most.of(drawDialog(title, msg)),
+		DOM$,
 		accept$,
 		reject$
 	};
 });
 
-// show :: Nullable String -> String -> Stream ()
+// show :: Maybe String -> String -> Stream ()
 const show = R.curry((title, msg) => {
-	const modalTitle = S.toMaybe(title);
-	const modal = Modal(main(modalTitle, msg));
+	const modal = Modal(main(title, msg));
 
 	modal.reject$.observe(modal.hideModal);
 
@@ -33,17 +35,9 @@ const show = R.curry((title, msg) => {
 });
 
 // show_ :: String -> Stream ()
-const show_ = show(null);
+const show_ = show("提示");
 
-// tapShow :: a -> Nullable String -> String -> Stream a
-const tapShow = R.curry((a, title, msg) => {
-	return show(title, msg).constant(a);
-});
-
-// tapShow_ :: a -> String -> Stream a
-const tapShow_ = tapShow(R.__, null, R.__);
-
-exports.show = show;
-exports.show_ = show_;
-exports.tapShow = tapShow;
-exports.tapShow_ = tapShow_;
+module.exports = {
+	show,
+	show_
+};

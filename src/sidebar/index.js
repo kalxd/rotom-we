@@ -3,6 +3,8 @@ const Most = require("most");
 const dom = require("@cycle/dom");
 const Isolate = require("@cycle/isolate").default;
 
+const ConfirmW = require("XGWidget/confirm");
+
 const DropdownW = require("./widget/dropdown");
 const DropdownState = require("./widget/dropdown/state");
 const GroupFormW = require("./widget/groupform");
@@ -21,8 +23,16 @@ const intent = source => {
 		.events("click")
 	;
 
+	// 点击更新分组$ :: Stream ()
 	const 点击更新分组$ = source.DOM$.select(".__edit-group__")
 		.events("click")
+	;
+
+	// 点击删除分组$ :: Stream ()
+	const 点击删除分组$ = source.DOM$.select(".__delete-group__")
+		.events("click")
+		.map(_ => ConfirmW.show_("确定删除？"))
+		.switchLatest()
 	;
 
 	// 新建分组$ :: Stream (SidebarState -> SidebarState)
@@ -68,9 +78,29 @@ const intent = source => {
 		.switchLatest()
 	;
 
+	const 删除分组$ = state$
+		.sampleWith(点击删除分组$)
+		.filter(R.view(State.选中分组lens))
+		.concatMap(state => {
+			const [id] = R.pipe(
+				R.view(State.选中分组lens),
+				GroupState.常用字段
+			)(state);
+
+			return State.删除分组(state, id)
+				.tap(console.info)
+				.constant(R.compose(
+					R.set(State.选中分组lens, null),
+					R.over(State.分组lens, R.reject(GroupState.就是这个(id)))
+				))
+			;
+		})
+	;
+
 	return {
 		新建分组$,
-		更新分组$
+		更新分组$,
+		删除分组$
 	};
 };
 
@@ -113,6 +143,7 @@ const main = (source, appState$) => {
 	const state = 初始状态$
 		.merge(Action.新建分组$)
 		.merge(Action.更新分组$)
+		.merge(Action.删除分组$)
 		.merge(dropdownApp.选择$
 			.map(id => state => {
 				const 分组列表 = R.view(State.分组lens, state);

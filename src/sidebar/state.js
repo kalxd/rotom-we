@@ -46,6 +46,11 @@ const 更新分组 = R.curry((state, 旧分组, 新名字) => {
 	return state.fetch.PATCH(`/分组/${id}/更新`, body);
 });
 
+// 删除分组 :: SidebarState -> Int -> Stream ()
+const 删除分组 = R.curry((state, id) => {
+	return state.fetch.DELETE_(`/分组/${id}/全部清除`);
+});
+
 module.exports = {
 	生成,
 	分组lens,
@@ -54,5 +59,6 @@ module.exports = {
 	获取分组列表,
 	更新分组列表,
 	新建分组,
-	更新分组
+	更新分组,
+	删除分组
 };
