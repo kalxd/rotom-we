@@ -31,12 +31,13 @@ const intent = source => {
 		.map(state => {
 			return GroupFormW(null)
 				.concatMap(State.新建分组(state))
-				.map(新分组 => R.over(State.分组lens, R.prepend(新分组)))
+				.map(新分组 => R.over(State.分组lens, R.append(新分组)))
 			;
 		})
 		.switchLatest()
 	;
 
+	// 更新分组$ :: Stream (SidebarState -> SidebarState)
 	const 更新分组$ = state$
 		.sampleWith(点击更新分组$)
 		.filter(R.view(State.选中分组lens))
