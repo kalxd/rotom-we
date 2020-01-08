@@ -50,29 +50,21 @@ const intent = source => {
 	// 更新分组$ :: Stream (SidebarState -> SidebarState)
 	const 更新分组$ = state$
 		.sampleWith(点击更新分组$)
-		.filter(R.view(State.选中分组lens))
+		.filter(R.view(State.位置lens))
 		.map(state => {
-			const 旧分组 = R.view(State.选中分组lens, state);
-			const [id, 名字] = GroupState.常用字段(旧分组);
+			const 位置 = R.view(State.位置lens, state);
+			const 旧分组 = State.选中分组(state);
+
+			const [_, 名字] = GroupState.常用字段(旧分组);
+
+			const lens = R.compose(
+				State.分组lens,
+				R.lensIndex(位置)
+			);
 
 			return GroupFormW(名字)
 				.concatMap(State.更新分组(state, 旧分组))
-				.map(新分组 => R.compose(
-					R.set(State.选中分组lens, 新分组),
-					state => {
-						const 位置 = R.findIndex(
-							GroupState.就是这个(id),
-							R.view(State.分组lens, state)
-						);
-
-						const lens = R.compose(
-							State.分组lens,
-							R.lensIndex(位置)
-						);
-
-						return R.set(lens, 新分组, state);
-					}
-				))
+				.map(R.set(lens))
 			;
 		})
 		.switchLatest()
@@ -80,18 +72,16 @@ const intent = source => {
 
 	const 删除分组$ = state$
 		.sampleWith(点击删除分组$)
-		.filter(R.view(State.选中分组lens))
+		.filter(R.view(State.位置lens))
 		.concatMap(state => {
 			const [id] = R.pipe(
-				R.view(State.选中分组lens),
+				State.选中分组,
 				GroupState.常用字段
 			)(state);
 
 			return State.删除分组(state, id)
-				.tap(console.info)
 				.constant(R.compose(
-					R.set(State.选中分组lens, null),
-					R.over(State.分组lens, R.reject(GroupState.就是这个(id)))
+					R.set(State.位置lens, null),
 				))
 			;
 		})
@@ -125,9 +115,9 @@ const main = (source, appState$) => {
 	// 下接菜单
 	const dropdownState$ = state$
 		.map(state => {
-			const a = R.view(State.选中分组lens, state);
-			const b = R.view(State.分组lens, state);
-			return DropdownState.生成(a, b);
+			const 选中 = State.选中分组(state);
+			const 分组 = R.view(State.分组lens, state);
+			return DropdownState.生成(选中, 分组);
 		})
 	;
 
@@ -145,11 +135,7 @@ const main = (source, appState$) => {
 		.merge(Action.更新分组$)
 		.merge(Action.删除分组$)
 		.merge(dropdownApp.选择$
-			.map(id => state => {
-				const 分组列表 = R.view(State.分组lens, state);
-				const 分组 = R.find(GroupState.就是这个(id), 分组列表);
-				return R.set(State.选中分组lens, 分组, state);
-			})
+			.map(R.set(State.位置lens))
 		)
 	;
 

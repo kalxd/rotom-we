@@ -16,7 +16,7 @@ const renderDropdown = dropdownDOM => dom.div(".ui.segment", [
 
 // render :: (SidebarState, View) -> View
 const render = ([state, dropdownDOM]) => {
-	const 当前分组 = R.view(State.选中分组lens, state);
+	const 当前分组 = State.选中分组(state);
 
 	return dom.div(".ui.stacked.segments", [
 		renderDropdown(dropdownDOM),

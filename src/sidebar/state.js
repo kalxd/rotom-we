@@ -1,12 +1,13 @@
 const R = require("ramda");
 const Most = require("most");
+const { fmap } = require("XGLib/ext");
 
 const GroupState = require("XGState/group");
 
 /**
  * type SidebarState = { fetch :: FetchReader
- * 					   , 分组 :: [分组]
- * 					   , 选中分组 :: Maybe 分组
+ * 					   , 分组 :: [Group]
+ * 					   , 位置 :: Maybe Int
  * 					   }
  */
 
@@ -14,24 +15,27 @@ const GroupState = require("XGState/group");
 const 生成 = fetch => ({
 	fetch,
 	分组: [],
-	选中分组: null
+	位置: null
 });
 
 // 分组lens :: Lens SidebarState [分组]
 const 分组lens = R.lensProp("分组");
 
-// 选中分组lens :: Lens SidebarState (Maybe 分组)
-const 选中分组lens = R.lensProp("选中分组");
+// 位置lens :: Lens SidebarState (Maybe Int)
+const 位置lens = R.lensProp("位置");
 
-// 获取分组列表 :: SidebarState -> Stream [分组]
-const 获取分组列表 = state => state.fetch.GET_("/分组/列表");
+// 常用字段 :: SidebarState -> ([Group], Maybe Int)
+const 常用字段 = R.props(["分组", "位置"]);
 
-// 更新分组列表 :: SidebarState -> Stream (SidebarState -> SidebarState)
-const 更新分组列表 = state => {
-	return 获取分组列表(state)
-		.map(R.set(分组lens))
-	;
+// 选中分组 :: SidebarState -> Maybe Group
+const 选中分组 = state => {
+	const [分组, 位置] = 常用字段(state);
+
+	return fmap(R.flip(R.nth)(分组))(位置);
 };
+
+// 获取分组列表 :: SidebarState -> Stream [Group]
+const 获取分组列表 = state => state.fetch.GET_("/分组/列表");
 
 // 新建分组 :: SidebarState -> String -> Stream Group
 const 新建分组 = R.curry((state, 名字) => {
@@ -54,10 +58,12 @@ const 删除分组 = R.curry((state, id) => {
 module.exports = {
 	生成,
 	分组lens,
-	选中分组lens,
+	位置lens,
+
+	常用字段,
+	选中分组,
 
 	获取分组列表,
-	更新分组列表,
 	新建分组,
 	更新分组,
 	删除分组

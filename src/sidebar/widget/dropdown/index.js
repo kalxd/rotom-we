@@ -6,7 +6,7 @@ const render = require("./render");
 const intent = source => {
 	const 选择$ = source.DOM$.select(".__item__")
 		.events("click")
-		.map(e => e.target.dataset.id)
+		.map(e => e.target.dataset.index)
 		.map(Number)
 		.skipRepeats()
 	;

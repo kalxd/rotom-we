@@ -47,7 +47,8 @@ const main = source => {
 		.map(LoadV.render)
 		.recoverWith(R.compose(
 			Most.of,
-			renderError
+			renderError,
+			R.tap(console.error)
 		))
 	;
 

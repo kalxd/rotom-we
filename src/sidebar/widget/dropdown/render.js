@@ -53,20 +53,20 @@ const 显示文本 = state => {
 	}
 };
 
-// 显示分组 :: Group -> View
-const 显示分组 = 分组 => {
-	const [id, 名字] = GroupState.常用字段(分组);
+// 显示分组 :: Group -> Int -> View
+const 显示分组 = R.curry((分组, index) => {
+	const [_, 名字] = GroupState.常用字段(分组);
 
 	return dom.div(
 		".item.__item__",
 		{
 			dataset: {
-				id
+				index
 			}
 		},
 		名字
 	);
-};
+});
 
 // render :: State -> View
 const render = state => {
@@ -78,7 +78,7 @@ const render = state => {
 		显示文本(state),
 		dom.div(
 			样式.下拉菜单,
-			R.map(显示分组, 分组列表)
+			R.addIndex(R.map)(显示分组, 分组列表)
 		)
 	]);
 };
