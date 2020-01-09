@@ -7,7 +7,7 @@ const 生成样式 = state => {
 	const 显示 = R.view(State.显示lens, state);
 
 	const 菜单 = (b => {
-		const base = ".ui.selection.mini.dropdown.__self__";
+		const base = ".ui.selection.dropdown.__self__";
 		if (b) {
 			return `${base}.active`;
 		}
@@ -49,7 +49,7 @@ const 显示文本 = state => {
 	}
 	else {
 		const [_, 名字] = GroupState.常用字段(选择分组);
-		return dom.div(".text", 名字);
+		return dom.span(".ui.grey.text", 名字);
 	}
 };
 
