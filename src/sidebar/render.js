@@ -22,13 +22,13 @@ const render = ([state, dropdownDOM]) => {
 		renderDropdown(dropdownDOM),
 
 		dom.div(".ui.segment", [
-			dom.button(".ui.primary.button.__add-group__", "添加分组"),
+			dom.button(".ui.primary.mini.button.__add-group__", "添加分组"),
 			fmap(
-				_ => dom.button(".ui.orange.button.__edit-group__", "编辑分组")
+				_ => dom.button(".ui.orange.mini.button.__edit-group__", "编辑分组")
 			)(当前分组),
 
 			fmap(
-				_ => dom.button(".ui.red.button.__delete-group__", "删除分组")
+				_ => dom.button(".ui.red.mini.button.__delete-group__", "删除分组")
 			)(当前分组)
 		])
 	]);
