@@ -70,21 +70,26 @@ const intent = source => {
 		.switchLatest()
 	;
 
+	// 删除分组$ :: Stream (SidebarState -> SidebarState)
 	const 删除分组$ = state$
 		.sampleWith(点击删除分组$)
-		.filter(R.view(State.位置lens))
-		.concatMap(state => {
-			const [id] = R.pipe(
-				State.选中分组,
-				GroupState.常用字段
-			)(state);
+		.filter(R.compose(
+			R.complement(R.isNil),
+			R.view(State.位置lens)
+		))
+		.map(state => {
+			const 位置 = R.view(State.位置lens, state);
+			const 旧分组 = State.选中分组(state);
+			const [id, _] = GroupState.常用字段(旧分组);
 
 			return State.删除分组(state, id)
 				.constant(R.compose(
 					R.set(State.位置lens, null),
+					R.over(State.分组lens, R.remove(位置, 1))
 				))
 			;
 		})
+		.switchLatest()
 	;
 
 	return {
