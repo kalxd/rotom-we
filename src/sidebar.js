@@ -7,7 +7,7 @@ const AppState = require("XGState/app");
 const LoadState = require("XGState/load");
 
 const SidebarW = require("./sidebar/index");
-const LoadV = require("./sidebar/view/load");
+const LoadW = require("./sidebar/widget/load");
 const State = require("./sidebar/state");
 
 // renderError :: Error -> View
@@ -44,7 +44,7 @@ const main = source => {
 	const DOM$ = sidebarApp.DOM$
 		.map(LoadState.pure)
 		.startWith(LoadState.empty)
-		.map(LoadV.render)
+		.map(LoadW.render)
 		.recoverWith(R.compose(
 			Most.of,
 			renderError,
