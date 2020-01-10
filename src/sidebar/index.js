@@ -8,6 +8,7 @@ const ConfirmW = require("XGWidget/confirm");
 const DropdownW = require("./widget/dropdown");
 const DropdownState = require("./widget/dropdown/state");
 const GroupFormW = require("./widget/groupform");
+const EmojiW = require("./emoji/index");
 
 const LoadState = require("XGState/load");
 const GroupState = require("XGState/group");
@@ -117,19 +118,26 @@ const main = (source, appState$) => {
 		.map(R.always)
 	;
 
-	// 下接菜单
-	const dropdownState$ = state$
+	// dropdown$ :: Stream GroupState
+	const dropdown$ = state$
 		.map(state => {
 			const 选中 = State.选中分组(state);
 			const 分组 = R.view(State.分组lens, state);
 			return DropdownState.生成(选中, 分组);
 		})
 	;
+	const dropdownApp = Isolate(DropdownW)(source, dropdown$);
 
-	const dropdownApp = Isolate(DropdownW)(source, dropdownState$);
+	// 选中分组$ :: Stream (Maybe Group)
+	const group$ = state$
+		.map(State.选中分组)
+	;
+	const emojiApp = Isolate(EmojiW)(source, group$);
 
-	const DOM$ = state$
-		.combine(R.pair, dropdownApp.DOM$)
+	const DOM$ = Most.combineArray(
+		(a, b, c) => ([a, b, c]),
+		[state$, dropdownApp.DOM$, emojiApp.DOM$]
+	)
 		.tap(console.log)
 		.map(render)
 	;

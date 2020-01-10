@@ -28,11 +28,11 @@ const renderDropdown = R.curry((state, dropdownDOM) => {
 	]);
 });
 
-// render :: (SidebarState, View) -> View
-const render = ([state, dropdownDOM]) => {
+// render :: (SidebarState, View, View) -> View
+const render = ([state, dropdownDOM, emojiDOM]) => {
 	return dom.div(".ui.stacked.segments", [
 		renderDropdown(state, dropdownDOM),
-		dom.div(".ui.segment")
+		emojiDOM
 	]);
 };
 
