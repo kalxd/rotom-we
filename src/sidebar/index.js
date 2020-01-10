@@ -120,11 +120,7 @@ const main = (source, appState$) => {
 
 	// dropdown$ :: Stream GroupState
 	const dropdown$ = state$
-		.map(state => {
-			const 选中 = State.选中分组(state);
-			const 分组 = R.view(State.分组lens, state);
-			return DropdownState.生成(选中, 分组);
-		})
+		.map(DropdownState.生于SidebarState)
 	;
 	const dropdownApp = Isolate(DropdownW)(source, dropdown$);
 

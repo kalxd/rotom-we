@@ -1,4 +1,5 @@
 const R = require("ramda");
+const State = require("../../state");
 
 /**
  * type State = { 显示 :: Bool
@@ -7,15 +8,17 @@ const R = require("ramda");
  * 				}
  */
 
-// 生成 :: Maybe Group -> [Group] -> State
-const 生成 = R.curry((当前选择, 列表元素) => ({
-	显示: false,
-	当前选择,
-	列表元素
-}));
+// 生于SidebarState :: SidebarState -> State
+const 生于SidebarState = state => {
+	const 当前选择 = State.选中分组(state);
+	const 列表元素 = R.view(State.分组lens, state);
 
-// 初始 :: [Group] -> State
-const 初始 = 生成(null);
+	return {
+		显示: false,
+		当前选择,
+		列表元素
+	};
+};
 
 // 显示lens :: Lens State Bool
 const 显示lens = R.lensProp("显示");
@@ -27,9 +30,8 @@ const 当前选择lens = R.lensProp("当前选择");
 const 列表元素lens = R.lensProp("列表元素");
 
 module.exports = {
-	生成,
-	初始,
 	显示lens,
 	当前选择lens,
-	列表元素lens
+	列表元素lens,
+	生于SidebarState
 };
