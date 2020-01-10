@@ -7,12 +7,13 @@ const { drawDialog } = require("XGWidget/draw");
 
 const State = require("./state");
 
-const intent = source => {
+const intent = (source, 分组名字) => {
 	const state$ = source.state.stream;
 
 	const 名字$ = source.DOM$.select(".__name__")
 		.events("change")
 		.map(e => e.target.value.trim())
+		.startWith(分组名字)
 	;
 
 	const 确定$ = source.DOM$.select(".accept")
@@ -67,7 +68,7 @@ const app = R.curry((分组名字, source) => {
 		.map(R.always)
 	;
 
-	const Action = intent(source);
+	const Action = intent(source, 分组名字);
 
 	const state = 初始$;
 
