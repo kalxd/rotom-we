@@ -26,6 +26,7 @@ const intent = source => {
 // app :: Maybe Emoji -> DropdownState -> Source -> Application
 const app = R.curry((表情, dropdownState, source) => {
 	const Action = intent(source);
+	const state$ = source.state.stream;
 
 	const 标题 = (x => {
 		if (R.isNil(x)) {
@@ -37,15 +38,18 @@ const app = R.curry((表情, dropdownState, source) => {
 	})(表情);
 
 	const 初始$ = Most.of(dropdownState)
-		.map(R.view(DropdownState.当前选择lens))
 		.map(State.生成(表情))
+		.map(R.always)
 	;
 
 	// dropdownState$ :: Stream DropdownState
 	const dropdownState$ = Most.of(dropdownState);
 	const dropdownApp = Isolate(DropdownW)(source, dropdownState$);
 
-	const DOM$ = 初始$
+	const state = 初始$
+	;
+
+	const DOM$ = state$
 		.combine(
 			render(标题),
 			dropdownApp.DOM$
@@ -54,6 +58,7 @@ const app = R.curry((表情, dropdownState, source) => {
 
 	return {
 		DOM$,
+		state,
 		accept$: Action.确定$,
 		reject$: Action.取消$
 	};
