@@ -4,16 +4,33 @@ const EmojiFormW = require("../widget/emojiform");
 
 const State = require("./state");
 const LoadState = require("XGState/load");
+const DropdownState = require("../widget/dropdown/state");
+const SidebarState = require("../state");
 const render = require("./render");
 
-const intent = source => {
+const intent = R.curry((source, sidebarState$) => {
 	const 点击新建$ = source.DOM$.select(".__add__")
 		.events("click")
 	;
-};
 
-// main :: Source -> Stream State -> Application
-const main = R.curry((source, state$) => {
+	const 新建$ = sidebarState$
+		.sampleWith(点击新建$)
+		.map(DropdownState.生于SidebarState)
+		.map(EmojiFormW(null))
+		.switchLatest()
+	;
+
+	return {
+		新建$
+	};
+});
+
+// main :: Source -> Stream State -> Stream SidebarState -> Application
+const main = R.curry((source, state$, sidebarState$) => {
+	const Action = intent(source, sidebarState$);
+
+	Action.新建$.observe(console.log);
+
 	const DOM$ = state$
 		.concatMap(state => {
 			return State.获取表情列表(state)

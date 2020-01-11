@@ -27,7 +27,7 @@ const main = R.curry((source, sidebarState$) => {
 		]))
 		.map(R.apply(State.生成))
 	;
-	const selfApp = Self(source, state$);
+	const selfApp = Self(source, state$, input$);
 
 	// 未选择$ :: Stream View
 	const 未选择$ = input$

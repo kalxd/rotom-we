@@ -1,45 +1,32 @@
 const R = require("ramda");
+const Most = require("most");
+const Isolate = require("@cycle/isolate").default;
 const Modal = require("XGWidget/modal");
+const DropdownW = require("../dropdown");
+const DropdownState = require("../dropdown/state");
 
 const State = require("./state");
 const render = require("./render");
 
 const intent = source => {
-	const state$ = source.state.stream;
-
-	const nameChange$ = source.DOM.select("._xg_name_input_")
-		.events("change")
-		.map(e => e.target.value.trim())
-		.merge(state$.map(PageS.viewFormValue(nameLens)))
-		.skipRepeats()
-	;
-
-	const linkChange$ = source.DOM.select("._xg_link_input_")
-		.events("change")
-		.map(e => e.target.value.trim())
-		.merge(state$.map(PageS.viewFormValue(linkLens)))
-		.skipRepeats()
-	;
-
-	const accept$ = source.DOM.select(".accept")
+	const 确定$ = source.DOM$.select(".accept")
 		.events("click")
 	;
 
-	const reject$ = source.DOM.select(".reject")
+	const 取消$ = source.DOM$.select(".reject")
 		.events("click")
 	;
 
 	return {
-		nameChange$,
-		linkChange$,
-
-		accept$,
-		reject$
+		确定$,
+		取消$
 	};
 };
 
-// app :: [Group] -> Group-> Maybe Emoji -> Source -> Application
-const app = R.curry((分组, 选中, 表情, source) => {
+// app :: Maybe Emoji -> DropdownState -> Source -> Application
+const app = R.curry((表情, dropdownState, source) => {
+	const Action = intent(source);
+
 	const 标题 = (x => {
 		if (R.isNil(x)) {
 			return "新建表情";
@@ -49,20 +36,32 @@ const app = R.curry((分组, 选中, 表情, source) => {
 		}
 	})(表情);
 
-	const state = State.生成(分组, 选中, 表情);
+	const 初始$ = Most.of(dropdownState)
+		.map(R.view(DropdownState.当前选择lens))
+		.map(State.生成(表情))
+	;
+
+	// dropdownState$ :: Stream DropdownState
+	const dropdownState$ = Most.of(dropdownState);
+	const dropdownApp = Isolate(DropdownW)(source, dropdownState$);
 
 	const DOM$ = 初始$
-		.map(state => render(标题, state, null))
+		.combine(
+			render(标题),
+			dropdownApp.DOM$
+		)
 	;
 
 	return {
-		DOM$
+		DOM$,
+		accept$: Action.确定$,
+		reject$: Action.取消$
 	};
 });
 
-// main :: [Group] -> Group -> Maybe Emoji -> Stream State
-const main = R.curry((分组, 选中, 表情) => {
-	const modal = Modal(app(分组, 选中, 表情));
+// main :: Maybe Emoji -> DropdownState -> Stream State
+const main = R.curry((表情, dropdownState) => {
+	const modal = Modal(app(表情, dropdownState));
 
 	modal.reject$.observe(modal.hideModal);
 
