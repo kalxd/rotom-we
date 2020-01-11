@@ -1,4 +1,7 @@
+const R = require("ramda");
 const dom = require("@cycle/dom");
+const { fmap } = require("XGLib/ext");
+const State = require("./state");
 
 const renderCard = emoji => dom.div(".ui.raised.card", [
 	dom.div(".image", [
@@ -15,8 +18,9 @@ const renderCard = emoji => dom.div(".ui.raised.card", [
 	])
 ]);
 
-const render = emojiVec => {
-	return dom.div(".ui.two.cards", emojiVec.map(renderCard));
-};
+// render :: Maybe State -> View
+const render = fmap(state => {
+	return dom.div(".ui.head", "hello world");
+});
 
 module.exports = render;

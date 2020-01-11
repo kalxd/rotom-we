@@ -18,6 +18,9 @@ const 生成 = fetch => ({
 	位置: null
 });
 
+// fetchlens :: Lens SidebarState FetchReader
+const fetchlens = R.lensProp("fetch");
+
 // 分组lens :: Lens SidebarState [分组]
 const 分组lens = R.lensProp("分组");
 
@@ -57,6 +60,7 @@ const 删除分组 = R.curry((state, id) => {
 
 module.exports = {
 	生成,
+	fetchlens,
 	分组lens,
 	位置lens,
 

@@ -124,9 +124,12 @@ const main = (source, appState$) => {
 	;
 	const dropdownApp = Isolate(DropdownW)(source, dropdown$);
 
-	// 选中分组$ :: Stream (Maybe Group)
+	// 选中分组$ :: Stream (FetchReader, Maybe Group)
 	const group$ = state$
-		.map(State.选中分组)
+		.map(state => ([
+			R.view(State.fetchlens, state),
+			State.选中分组(state)
+		]))
 	;
 	const emojiApp = Isolate(EmojiW)(source, group$);
 

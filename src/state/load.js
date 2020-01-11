@@ -23,7 +23,14 @@ const empty = {
 };
 
 // fmap :: (a -> b) -> LoadState a -> LoadState b
-const fmap = R.over(内容lens);
+const fmap = R.curry((f, state) => {
+	if (R.view(已完成lens, state)) {
+		return R.over(内容lens, f, state);
+	}
+	else {
+		return state;
+	}
+});
 
 // pure :: a -> LoadState a
 const pure = a => ({
