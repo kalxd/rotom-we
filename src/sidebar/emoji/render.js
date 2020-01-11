@@ -39,12 +39,12 @@ const renderCard = emoji => dom.div(".ui.raised.card", [
 	])
 ]);
 
-// render :: Maybe State -> View
-const render = fmap(state => {
-	return dom.div(".ui.grey.segment", [
+// render :: State -> View
+const render = state => {
+	return dom.div(".ui.teal.segment", [
 		搜索表单(state),
 		"hello world"
 	]);
-});
+};
 
 module.exports = render;
