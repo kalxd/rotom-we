@@ -18,7 +18,7 @@ const 搜索表单 = state => {
 				])
 			]),
 			dom.div(".field", [
-				dom.button(".ui.mini.primary.button", "新建表情")
+				dom.button(".ui.mini.primary.button.__add__", "新建表情")
 			])
 		])
 	]);

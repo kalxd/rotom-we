@@ -5,27 +5,34 @@ const dom = require("@cycle/dom");
 const LoadW = require("../widget/load");
 
 const State = require("./state");
+const SidebarState = require("../state");
 const render = require("./render");
 
 const Self = require("./emoji");
 
-// main :: Source -> Stream (FetchReader, Maybe Group) -> Application
-const main = R.curry((source, group$) => {
-	const input$ = group$.multicast();
+// main :: Source -> Stream SidebarState -> Application
+const main = R.curry((source, sidebarState$) => {
+	const input$ = sidebarState$.multicast();
 
 	// state$ :: Stream State
 	const state$ = input$
-		.filter(R.nth(1))
+		.filter(R.compose(
+			R.not,
+			R.isNil,
+			R.view(SidebarState.位置lens)
+		))
+		.map(state => ([
+			R.view(SidebarState.fetchlens, state),
+			SidebarState.选中分组(state)
+		]))
 		.map(R.apply(State.生成))
 	;
 	const selfApp = Self(source, state$);
 
 	// 未选择$ :: Stream View
 	const 未选择$ = input$
-		.filter(R.compose(
-			R.isNil,
-			R.nth(1)
-		))
+		.map(R.view(SidebarState.位置lens))
+		.filter(R.isNil)
 		.constant(null)
 	;
 

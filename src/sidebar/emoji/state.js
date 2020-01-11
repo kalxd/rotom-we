@@ -1,6 +1,7 @@
 const R = require("ramda");
 
 const GroupState = require("XGState/group");
+const SidebarState = require("../state");
 
 /**
  * type State = { fetch :: FetchReader

@@ -31,7 +31,7 @@ module.exports = {
 	idlens,
 	名字lens,
 	链接lens,
-	分组lens,
+	分组idlens,
 	创建日期lens,
 	常用字段
 };
