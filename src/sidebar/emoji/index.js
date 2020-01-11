@@ -25,7 +25,6 @@ const main = R.curry((source, group$) => {
 				;
 			}
 		})
-		.tap(console.info)
 		.map(R.always)
 	;
 

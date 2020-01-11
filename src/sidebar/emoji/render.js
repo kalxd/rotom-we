@@ -3,6 +3,27 @@ const dom = require("@cycle/dom");
 const { fmap } = require("XGLib/ext");
 const State = require("./state");
 
+// 搜索表单 :: State -> View
+const 搜索表单 = state => {
+	return dom.div(".ui.mini.form", [
+		dom.div(".inline.fields", [
+			dom.div(".field", [
+				dom.div(".ui.input.icon", [
+					dom.i(".icon.search"),
+					dom.input(".__search__", {
+						props: {
+							placeholder: "搜索"
+						}
+					})
+				])
+			]),
+			dom.div(".field", [
+				dom.button(".ui.mini.primary.button", "新建表情")
+			])
+		])
+	]);
+};
+
 const renderCard = emoji => dom.div(".ui.raised.card", [
 	dom.div(".image", [
 		dom.img({ attrs: { src: emoji.link } })
@@ -20,7 +41,10 @@ const renderCard = emoji => dom.div(".ui.raised.card", [
 
 // render :: Maybe State -> View
 const render = fmap(state => {
-	return dom.div(".ui.head", "hello world");
+	return dom.div(".ui.grey.segment", [
+		搜索表单(state),
+		"hello world"
+	]);
 });
 
 module.exports = render;
