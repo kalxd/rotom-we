@@ -27,6 +27,20 @@ const 创建日期lens = R.lensProp("创建日期lens");
 // 常用字段 :: Emoji -> (Int, String, String)
 const 常用字段 = R.props(["id", "名字", "链接"]);
 
+/**
+ * type EmojiPostForm = { 名字 :: String
+ * 						, 链接 :: String
+ * 						, 分组id :: Int
+ * 						}
+ */
+
+/**
+ * type EmojiPatchForm = { 名字 :: String
+ * 						 , 链接 :: String
+ * 						 , 分组id :: Int
+ * 						 }
+ */
+
 module.exports = {
 	idlens,
 	名字lens,
