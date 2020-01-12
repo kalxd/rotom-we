@@ -43,7 +43,8 @@ const 生成样式 = state => {
 
 // 显示文本 :: State -> View
 const 显示文本 = state => {
-	const 选择分组 = R.view(State.当前选择lens, state);
+	const 选择分组 = State.当前分组(state);
+
 	if (R.isNil(选择分组)) {
 		return dom.div(".default.text", "未选择");
 	}
