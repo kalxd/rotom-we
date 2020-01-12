@@ -1,6 +1,8 @@
 const R = require("ramda");
-const { fmap } = require("XGLib/ext");
+const { fmap, fmap2 } = require("XGLib/ext");
 const EmojiState = require("XGState/emoji");
+const GroupState = require("XGState/group");
+const DropdownState = require("../dropdown/state");
 
 /**
  * type State = { 名字 :: String
@@ -34,10 +36,39 @@ const dropdownlens = R.lensProp("dropdown");
 // 常用字段 :: State -> (String, String)
 const 常用字段 = R.props(["名字", "链接"]);
 
+// 生成EmojiForm :: State -> Maybe EmojiForm
+const 生成EmojiForm = state => {
+	const [名字, 链接] = 常用字段(state);
+	const 选中分组 = R.pipe(
+		R.view(dropdownlens),
+		DropdownState.当前分组
+	)(state);
+
+	// 非空链接 :: String -> Maybe String
+	const 非空链接 = (s => {
+		if (R.isEmpty(s)) {
+			return null;
+		}
+		else {
+			return s;
+		}
+	})(链接);
+
+	return fmap2(
+		(链接, 分组) => ({
+			名字,
+			链接,
+			分组id: R.view(GroupState.idlens, 分组)
+		})
+	)(非空链接, 选中分组);
+};
+
 module.exports = {
 	生成,
 	名字lens,
 	链接lens,
 	dropdownlens,
-	常用字段
+	常用字段,
+
+	生成EmojiForm
 };

@@ -9,7 +9,9 @@ const State = require("./state");
 const render = require("./render");
 
 const intent = source => {
-	const 确定$ = source.DOM$.select(".accept")
+	const state$ = source.state.stream;
+
+	const 点击确定$ = source.DOM$.select(".accept")
 		.events("click")
 	;
 
@@ -17,9 +19,33 @@ const intent = source => {
 		.events("click")
 	;
 
+	// 名字$ :: Stream (State -> State)
+	const 名字$ = source.DOM$.select(".__name__")
+		.events("change")
+		.map(e => e.target.value.trim())
+		.map(R.set(State.名字lens))
+	;
+
+	// 链接$ :: Stream (State -> State)
+	const 链接$ = source.DOM$.select(".__link__")
+		.events("change")
+		.map(e => e.target.value.trim())
+		.map(R.set(State.链接lens))
+	;
+
+	// 确定$ :: Stream EmojiForm
+	const 确定$ = state$
+		.sampleWith(点击确定$)
+		.map(State.生成EmojiForm)
+		.filter(R.complement(R.isNil))
+	;
+
 	return {
 		确定$,
-		取消$
+		取消$,
+
+		名字$,
+		链接$
 	};
 };
 
@@ -43,10 +69,26 @@ const app = R.curry((表情, dropdownState, source) => {
 	;
 
 	// dropdownState$ :: Stream DropdownState
-	const dropdownState$ = Most.of(dropdownState);
+	const dropdownState$ = state$
+		.map(R.view(State.dropdownlens))
+	;
 	const dropdownApp = Isolate(DropdownW)(source, dropdownState$);
 
+	const 选择分组$ = dropdownApp.选择$
+		.map(index => {
+			const lens = R.compose(
+				State.dropdownlens,
+				DropdownState.当前选择lens
+			);
+
+			return R.set(lens, index);
+		})
+	;
+
 	const state = 初始$
+		.merge(选择分组$)
+		.merge(Action.名字$)
+		.merge(Action.链接$)
 	;
 
 	const DOM$ = state$
@@ -64,7 +106,7 @@ const app = R.curry((表情, dropdownState, source) => {
 	};
 });
 
-// main :: Maybe Emoji -> DropdownState -> Stream State
+// main :: Maybe Emoji -> DropdownState -> Stream EmojiForm
 const main = R.curry((表情, dropdownState) => {
 	const modal = Modal(app(表情, dropdownState));
 

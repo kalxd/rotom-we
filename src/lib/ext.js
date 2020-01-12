@@ -48,6 +48,15 @@ const fmap = R.curry((f, x) => {
 	return f(x);
 });
 
+const fmap2 = R.curry((f, a, b) => {
+	if (R.isNil(a) || R.isNil(b)) {
+		return null;
+	}
+	else {
+		return f(a, b);
+	}
+});
+
 // renderWhen :: Bool -> (() -> View) -> View
 const renderWhen = R.curry((b, f) => {
 	if (!b) {
@@ -66,5 +75,6 @@ module.exports = {
 	liftThrow,
 	orEmpty,
 	fmap,
+	fmap2,
 	renderWhen
 };
