@@ -44,7 +44,7 @@ const 生成EmojiForm = state => {
 		DropdownState.当前分组
 	)(state);
 
-	// 非空链接 :: String -> Maybe String
+	// 非空链接 :: Maybe String
 	const 非空链接 = (s => {
 		if (R.isEmpty(s)) {
 			return null;
