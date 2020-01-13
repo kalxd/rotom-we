@@ -8,15 +8,21 @@ const DropdownState = require("../widget/dropdown/state");
 const SidebarState = require("../state");
 const render = require("./render");
 
-const intent = R.curry((source, sidebarState$) => {
+const intent = R.curry((source, state$, sidebarState$) => {
 	const 点击新建$ = source.DOM$.select(".__add__")
 		.events("click")
 	;
 
-	const 新建$ = sidebarState$
-		.sampleWith(点击新建$)
-		.map(DropdownState.生于SidebarState)
-		.map(EmojiFormW(null))
+	// 新建$ :: Stream (EmojiState -> EmojiState)
+	const 新建$ = 点击新建$
+		.sample(R.pair, state$, sidebarState$)
+		.map(([state, sidebarState]) => {
+			const dropdownState = DropdownState.生于SidebarState(sidebarState);
+			return EmojiFormW(null, dropdownState)
+				.concatMap(State.新建表情(state))
+				.map(x => R.over(State.表情分表lens, R.append(x)))
+			;
+		})
 		.switchLatest()
 	;
 
@@ -27,9 +33,7 @@ const intent = R.curry((source, sidebarState$) => {
 
 // main :: Source -> Stream State -> Stream SidebarState -> Application
 const main = R.curry((source, state$, sidebarState$) => {
-	const Action = intent(source, sidebarState$);
-
-	Action.新建$.observe(console.log);
+	const Action = intent(source, state$, sidebarState$);
 
 	const DOM$ = state$
 		.concatMap(state => {
@@ -40,6 +44,7 @@ const main = R.curry((source, state$, sidebarState$) => {
 				.map(R.always)
 			;
 		})
+		.merge(Action.新建$)
 		.scan((acc, f) => f(acc), LoadState.empty)
 		.map(LoadState.fmap(render))
 		.map(LoadW.render)

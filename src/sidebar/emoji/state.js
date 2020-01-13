@@ -33,7 +33,7 @@ const 搜索词lens = R.lensProp("搜索词");
 const 获取表情列表 = state => {
 	const id = R.pipe(
 		R.view(当前分组lens),
-		R.view(GroupEmojiState.idlens)
+		R.view(GroupState.idlens)
 	)(state);
 	return state.fetch.GET_(`/分组/${id}/表情列表`);
 };
