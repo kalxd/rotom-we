@@ -18,7 +18,7 @@ const sendBody = R.curry((method, 请求头, 域名, 请求路径, body) => {
 		body: JSON.stringify(body)
 	};
 
-	const 完整地址 = `${域名}${请求路径}`;
+	const 完整地址 = new URL(请求路径, 域名);
 
 	const r = fetch(完整地址, init).then(r => r.json());
 	return Most.fromPromise(r);
@@ -32,12 +32,12 @@ const sendQuery = R.curry((method, 请求头, 域名, 请求路径, query) => {
 	};
 
 	const 完整地址 = (域名 => {
-		const 完整地址 = `${域名}${请求路径}`;
+		const 基础地址 = new URL(请求路径, 域名);
 		if (R.isEmpty(query)) {
-			return 完整地址;
+			return 基础地址;
 		}
 		else {
-			return `${完整地址}?${querify(query)}`;
+			return new URL(querify(query), 基础地址);
 		}
 	})(域名);
 
