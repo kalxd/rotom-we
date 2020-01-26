@@ -30,6 +30,7 @@ const 生成样式 = state => {
 		菜单,
 		下拉菜单,
 		菜单动画: {
+			zIndex: 200,
 			transition: "opacity .3s, transform .3s",
 			opacity: 0,
 			transform: "rotateX(-90deg)",
