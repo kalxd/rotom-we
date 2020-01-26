@@ -5,7 +5,7 @@
  * 					  }
  */
 const R = require("ramda");
-const { isEmpty } = require("XGLib/ext");
+const { isEmpty, toURL } = require("XGLib/ext");
 
 const AppState = require("XGState/app");
 
@@ -35,6 +35,9 @@ const validate = state => {
 	}
 	else if (isEmpty(token)) {
 		return "神秘代码不能为空！";
+	}
+	else if (!toURL(addr)) {
+		return "服务器地址需要正确网络地址。";
 	}
 	else {
 		return null;

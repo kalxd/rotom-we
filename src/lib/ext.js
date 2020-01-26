@@ -66,6 +66,15 @@ const renderWhen = R.curry((b, f) => {
 	return f();
 });
 
+// toURL :: String -> Maybe URL
+const toURL = url => {
+	try {
+		return new URL(url);
+	} catch(_) {
+		return null;
+	}
+};
+
 module.exports = {
 	isEmpty,
 	isNotEmpty,
@@ -76,5 +85,6 @@ module.exports = {
 	orEmpty,
 	fmap,
 	fmap2,
-	renderWhen
+	renderWhen,
+	toURL
 };
