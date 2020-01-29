@@ -37,9 +37,13 @@ const renderCard = R.curry((emoji, index) => {
 		dom.div(".content", 名字),
 
 		dom.div(".extra.content", [
-			dom.div(".ui.two.mini.buttons", [
-				dom.button(".ui.green.basic._xg_edit_.button", "编辑"),
-				dom.button(".ui.red.basic._xg_delete_.button", "删除")
+			dom.button(".ui.mini.tertiary.button.__edit__", [
+				dom.i(".icon.edit"),
+				"编辑"
+			]),
+			dom.button(".ui.mini.tertiary.red.button.__del__", [
+				dom.i(".icon.trash"),
+				"删除"
 			])
 		])
 	]);
