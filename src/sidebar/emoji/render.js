@@ -1,6 +1,7 @@
 const R = require("ramda");
 const dom = require("@cycle/dom");
 const { fmap } = require("XGLib/ext");
+const EmojiState = require("XGState/emoji");
 const State = require("./state");
 
 // 搜索表单 :: State -> View
@@ -24,26 +25,33 @@ const 搜索表单 = state => {
 	]);
 };
 
-const renderCard = emoji => dom.div(".ui.raised.card", [
-	dom.div(".image", [
-		dom.img({ attrs: { src: emoji.link } })
-	]),
+// renderCard :: Emoji -> Int -> View
+const renderCard = R.curry((emoji, index) => {
+	const [id, 名字, 链接] = EmojiState.常用字段(emoji);
 
-	dom.div(".content", emoji.name),
+	return dom.div(".ui.raised.card", [
+		dom.div(".image", [
+			dom.img({ attrs: { src: 链接 } })
+		]),
 
-	dom.div(".extra.content", [
-		dom.div(".ui.two.mini.buttons", [
-			dom.button(".ui.green.basic._xg_edit_.button", "编辑"),
-			dom.button(".ui.red.basic._xg_delete_.button", "删除")
+		dom.div(".content", 名字),
+
+		dom.div(".extra.content", [
+			dom.div(".ui.two.mini.buttons", [
+				dom.button(".ui.green.basic._xg_edit_.button", "编辑"),
+				dom.button(".ui.red.basic._xg_delete_.button", "删除")
+			])
 		])
-	])
-]);
+	]);
+});
 
-// render :: State -> View
+// render :: EmojiState -> View
 const render = state => {
+	const 表情列表 = R.view(State.表情列表lens, state);
+
 	return dom.div(".ui.teal.segment", [
 		搜索表单(state),
-		"hello world"
+		dom.div(".ui.two.cards", R.addIndex(R.map)(renderCard, 表情列表))
 	]);
 };
 
