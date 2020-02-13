@@ -1,6 +1,8 @@
 const R = require("ramda");
 const Most = require("most");
+
 const EmojiFormW = require("../widget/emojiform");
+const { nodeIndex } = require("XGLib/effect");
 
 const State = require("./state");
 const DropdownState = require("../widget/dropdown/state");
@@ -13,16 +15,16 @@ const intent = R.curry((source, sidebarState$) => {
 		.events("click")
 	;
 
+	// 点击编辑$ :: Stream Element
 	const 点击编辑$ = source.DOM$.select(".__edit__")
 		.events("click")
 		.map(e => e.target.parentNode.parentNode)
-		.map(el => Number(el.dataset.index))
 	;
 
+	// 点击删除$ :: Stream Element
 	const 点击删除$ = source.DOM$.select(".__del__")
 		.events("click")
 		.map(e => e.target.parentNode.parentNode)
-		.map(el => Number(el.dataset.index))
 	;
 
 	// 新建$ :: Stream (EmojiState -> EmojiState)
@@ -48,9 +50,8 @@ const intent = R.curry((source, sidebarState$) => {
 			]
 		)
 		.sampleWith(点击编辑$)
-		.map(([state, index, sidebarState]) => {
-			console.log(index);
-			console.log(state);
+		.map(([state, cardEl, sidebarState]) => {
+			const index = nodeIndex(cardEl);
 			const lens = R.compose(
 				State.表情列表lens,
 				R.lensIndex(index)
@@ -58,7 +59,6 @@ const intent = R.curry((source, sidebarState$) => {
 
 			const 旧表情 = R.view(lens, state);
 			const dropdownState = DropdownState.生于SidebarState(sidebarState);
-			console.log(旧表情);
 
 			return EmojiFormW(旧表情, dropdownState)
 				.concatMap(State.更新表情(state, 旧表情))

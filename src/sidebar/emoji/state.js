@@ -45,13 +45,13 @@ const 新建表情 = R.curry((state, body) => {
 
 // 更新表情 :: EmojiAppState -> Emoji -> EmojiForm -> Stream Emoji
 const 更新表情 = R.curry((state, 旧表情, body) => {
-	const id = R.view(EmojiAppState.idlens, 旧表情);
+	const id = R.view(EmojiState.idlens, 旧表情);
 	return state.fetch.PATCH(`/表情/${id}/更新`, body);
 });
 
 // 删除表情 :: EmojiAppState -> Emoji -> Stream ()
 const 删除表情 = R.curry((state, 表情) => {
-	const id = R.view(EmojiAppState.idlens, 表情);
+	const id = R.view(EmojiState.idlens, 表情);
 	return state.fetch.DELETE_(`/表情/${id}/删除`);
 });
 

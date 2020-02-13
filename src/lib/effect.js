@@ -46,7 +46,7 @@ const hideMaskWhen = () => {
 	hideMask(maskIORef);
 };
 
-// nodeIndex :: Element -> IO Nat
+// nodeIndex :: Element -> IO Int
 const nodeIndex = node => {
 	let index = 0;
 
