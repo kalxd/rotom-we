@@ -29,7 +29,7 @@ const 搜索表单 = state => {
 const renderCard = R.curry((emoji, index) => {
 	const [id, 名字, 链接] = EmojiState.常用字段(emoji);
 
-	return dom.div(".ui.raised.card", { dataset: { index } }, [
+	return dom.div(".ui.raised.card", [
 		dom.div(".image", [
 			dom.img({ attrs: { src: 链接 } })
 		]),
