@@ -5,14 +5,14 @@ const EmojiState = require("XGState/emoji");
 const SidebarState = require("../state");
 
 /**
- * type EmojiState = { fetch :: FetchReader
- * 					 , 表情列表 :: [Emoji]
- * 					 , 当前分组 :: Group,
- * 					 , 搜索词 :: String
- * 					 }
+ * type EmojiAppState = { fetch :: FetchReader
+ * 					 	, 表情列表 :: [Emoji]
+ * 					 	, 当前分组 :: Group,
+ * 					 	, 搜索词 :: String
+ * 					 	}
  */
 
-// 生成 :: FetchReader -> Group -> EmojiState
+// 生成 :: FetchReader -> Group -> EmojiAppState
 const 生成 = R.curry((fetch, 分组) => ({
 	fetch,
 	表情列表: [],
@@ -20,16 +20,16 @@ const 生成 = R.curry((fetch, 分组) => ({
 	搜索词: ""
 }));
 
-// 表情列表lens :: Lens EmojiState [Emoji]
+// 表情列表lens :: Lens EmojiAppState [Emoji]
 const 表情列表lens = R.lensProp("表情列表");
 
-// 当前分组lens :: Lens EmojiState Group
+// 当前分组lens :: Lens EmojiAppState Group
 const 当前分组lens = R.lensProp("当前分组");
 
-// 搜索词lens :: Lens EmojiState String
+// 搜索词lens :: Lens EmojiAppState String
 const 搜索词lens = R.lensProp("搜索词");
 
-// 获取表情列表 :: EmojiState -> Stream [Emoji]
+// 获取表情列表 :: EmojiAppState -> Stream [Emoji]
 const 获取表情列表 = state => {
 	const id = R.pipe(
 		R.view(当前分组lens),
@@ -38,20 +38,20 @@ const 获取表情列表 = state => {
 	return state.fetch.GET_(`/分组/${id}/表情列表`);
 };
 
-// 新建表情 :: EmojiState -> EmojiForm -> Stream Emoji
+// 新建表情 :: EmojiAppState -> EmojiForm -> Stream Emoji
 const 新建表情 = R.curry((state, body) => {
 	return state.fetch.POST("/表情/创建", body);
 });
 
-// 更新表情 :: EmojiState -> Emoji -> EmojiForm -> Stream Emoji
+// 更新表情 :: EmojiAppState -> Emoji -> EmojiForm -> Stream Emoji
 const 更新表情 = R.curry((state, 旧表情, body) => {
-	const id = R.view(EmojiState.idlens, 旧表情);
+	const id = R.view(EmojiAppState.idlens, 旧表情);
 	return state.fetch.PATCH(`/表情/${id}/更新`, body);
 });
 
-// 删除表情 :: EmojiState -> Emoji -> Stream ()
+// 删除表情 :: EmojiAppState -> Emoji -> Stream ()
 const 删除表情 = R.curry((state, 表情) => {
-	const id = R.view(EmojiState.idlens, 表情);
+	const id = R.view(EmojiAppState.idlens, 表情);
 	return state.fetch.DELETE_(`/表情/${id}/删除`);
 });
 

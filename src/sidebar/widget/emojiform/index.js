@@ -2,6 +2,7 @@ const R = require("ramda");
 const Most = require("most");
 const Isolate = require("@cycle/isolate").default;
 const Modal = require("XGWidget/modal");
+const EmojiState = require("XGState/emoji");
 const DropdownW = require("../dropdown");
 const DropdownState = require("../dropdown/state");
 
@@ -51,7 +52,7 @@ const intent = source => {
 
 // app :: Maybe Emoji -> DropdownState -> Source -> Application
 const app = R.curry((表情, dropdownState, source) => {
-	const Action = intent(source);
+	const Action = intent(source, 表情);
 	const state$ = source.state.stream;
 
 	const 标题 = (x => {

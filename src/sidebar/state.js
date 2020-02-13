@@ -8,6 +8,7 @@ const GroupState = require("XGState/group");
  * type SidebarState = { fetch :: FetchReader
  * 					   , 分组 :: [Group]
  * 					   , 位置 :: Maybe Int
+ * 					   , _Emoji :: EmojiAppState -- 内部状态
  * 					   }
  */
 

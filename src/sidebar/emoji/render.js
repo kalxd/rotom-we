@@ -29,7 +29,7 @@ const 搜索表单 = state => {
 const renderCard = R.curry((emoji, index) => {
 	const [id, 名字, 链接] = EmojiState.常用字段(emoji);
 
-	return dom.div(".ui.raised.card", [
+	return dom.div(".ui.raised.card", { dataset: { index } }, [
 		dom.div(".image", [
 			dom.img({ attrs: { src: 链接 } })
 		]),
@@ -37,14 +37,8 @@ const renderCard = R.curry((emoji, index) => {
 		dom.div(".content", 名字),
 
 		dom.div(".extra.content", [
-			dom.button(".ui.mini.tertiary.button.__edit__", [
-				dom.i(".icon.edit"),
-				"编辑"
-			]),
-			dom.button(".ui.mini.tertiary.red.button.__del__", [
-				dom.i(".icon.trash"),
-				"删除"
-			])
+			dom.button(".ui.mini.tertiary.button.__edit__", "编辑"),
+			dom.button(".ui.mini.tertiary.red.button.__del__", "删除")
 		])
 	]);
 });
@@ -52,6 +46,7 @@ const renderCard = R.curry((emoji, index) => {
 // render :: EmojiState -> View
 const render = state => {
 	const 表情列表 = R.view(State.表情列表lens, state);
+	console.info(state);
 
 	return dom.div(".ui.teal.segment", [
 		搜索表单(state),

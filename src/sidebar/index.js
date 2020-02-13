@@ -124,7 +124,7 @@ const main = (source, appState$) => {
 	;
 	const dropdownApp = Isolate(DropdownW)(source, dropdown$);
 
-	const emojiApp = Isolate(EmojiW)(source, state$);
+	const emojiApp = Isolate(EmojiW, "_Emoji")(source, state$);
 
 	const DOM$ = Most.combineArray(
 		(a, b, c) => ([a, b, c]),
@@ -142,6 +142,7 @@ const main = (source, appState$) => {
 		.merge(dropdownApp.选择$
 			.map(R.set(State.位置lens))
 		)
+		.merge(emojiApp.state)
 	;
 
 	return {

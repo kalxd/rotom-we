@@ -1,47 +1,117 @@
 const R = require("ramda");
 const Most = require("most");
-const dom = require("@cycle/dom");
-
-const LoadW = require("../widget/load");
+const EmojiFormW = require("../widget/emojiform");
 
 const State = require("./state");
+const DropdownState = require("../widget/dropdown/state");
 const SidebarState = require("../state");
 const render = require("./render");
 
-const Self = require("./emoji");
-
-// main :: Source -> Stream SidebarState -> Application
-const main = R.curry((source, sidebarState$) => {
-	const input$ = sidebarState$.multicast();
-
-	// state$ :: Stream State
-	const state$ = input$
-		.filter(R.compose(
-			R.not,
-			R.isNil,
-			R.view(SidebarState.位置lens)
-		))
-		.map(state => ([
-			R.view(SidebarState.fetchlens, state),
-			SidebarState.选中分组(state)
-		]))
-		.map(R.apply(State.生成))
-	;
-	const selfApp = Self(source, state$, input$);
-
-	// 未选择$ :: Stream View
-	const 未选择$ = input$
-		.map(R.view(SidebarState.位置lens))
-		.filter(R.isNil)
-		.constant(null)
+const intent = R.curry((source, sidebarState$) => {
+	const state$ = source.state.stream;
+	const 点击新建$ = source.DOM$.select(".__add__")
+		.events("click")
 	;
 
-	const DOM$ = selfApp.DOM$
-		.merge(未选择$)
+	const 点击编辑$ = source.DOM$.select(".__edit__")
+		.events("click")
+		.map(e => e.target.parentNode.parentNode)
+		.map(el => Number(el.dataset.index))
+	;
+
+	const 点击删除$ = source.DOM$.select(".__del__")
+		.events("click")
+		.map(e => e.target.parentNode.parentNode)
+		.map(el => Number(el.dataset.index))
+	;
+
+	// 新建$ :: Stream (EmojiState -> EmojiState)
+	const 新建$ = 点击新建$
+		.sample(R.pair, state$, sidebarState$)
+		.map(([state, sidebarState]) => {
+			const dropdownState = DropdownState.生于SidebarState(sidebarState);
+			return EmojiFormW(null, dropdownState)
+				.concatMap(State.新建表情(state))
+				.map(x => R.over(State.表情分表lens, R.append(x)))
+			;
+		})
+		.switchLatest()
+	;
+
+	// 编辑$ :: Stream (EmojiState -> EmojiState)
+	const 编辑$ = Most.combineArray(
+			(...xs) => xs,
+			[
+				state$,
+				点击编辑$,
+				sidebarState$
+			]
+		)
+		.sampleWith(点击编辑$)
+		.map(([state, index, sidebarState]) => {
+			console.log(index);
+			console.log(state);
+			const lens = R.compose(
+				State.表情列表lens,
+				R.lensIndex(index)
+			);
+
+			const 旧表情 = R.view(lens, state);
+			const dropdownState = DropdownState.生于SidebarState(sidebarState);
+			console.log(旧表情);
+
+			return EmojiFormW(旧表情, dropdownState)
+				.concatMap(State.更新表情(state, 旧表情))
+				.map(R.set(lens))
+			;
+		})
+		.switchLatest()
 	;
 
 	return {
-		DOM$
+		新建$,
+		编辑$
+	};
+});
+
+// main :: Source -> Stream SidebarState -> Application
+const main = R.curry((source, sidebarState$) => {
+	const state$ = source.state.stream;
+	const Action = intent(source, sidebarState$);
+
+	// 分组切换 :: Stream (a -> EmojiAppState)
+	const 分组切换$ = sidebarState$
+		.map(state => {
+			const fetch = R.view(SidebarState.fetchlens, state);
+			const 当前分组 = SidebarState.选中分组(state);
+			return [fetch, 当前分组];
+		})
+		.tap(console.info)
+		.filter(R.nth(1))
+		.skipRepeatsWith((x, y) => x[1] === y[1])
+	;
+
+	// state :: Stream (EmojiAppState -> EmojiAppState)
+	const state = 分组切换$
+		.map(R.apply(State.生成))
+		.concatMap(state => {
+			return State.获取表情列表(state)
+				.map(xs => R.set(State.表情列表lens, xs, state))
+				.map(R.always)
+			;
+		})
+		.merge(Action.新建$)
+		.merge(Action.编辑$)
+	;
+
+	const DOM$ = state$.tap(console.warn)
+		.map(render)
+		.startWith(null)
+	;
+
+	return {
+		DOM$,
+		state
 	};
 });
 
