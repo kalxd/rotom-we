@@ -3,6 +3,7 @@ const Most = require("most");
 
 const EmojiFormW = require("../widget/emojiform");
 const { nodeIndex } = require("XGLib/effect");
+const ConfirmW = require("XGWidget/confirm");
 
 const State = require("./state");
 const DropdownState = require("../widget/dropdown/state");
@@ -68,9 +69,31 @@ const intent = R.curry((source, sidebarState$) => {
 		.switchLatest()
 	;
 
+	// 删除$ :: Stream EmojiAppState -> EmojiAppState
+	const 删除$ = state$
+		.combine(R.pair, 点击删除$.map(nodeIndex))
+		.sampleWith(点击删除$)
+		.map(([state, index]) => {
+			return ConfirmW.show_("确认删除该表情？")
+				.concatMap(_ => {
+					const lens = R.compose(
+						State.表情列表lens,
+						R.lensIndex(index)
+					);
+
+					const 表情 = R.view(lens, state);
+					return State.删除表情(state, 表情);
+				})
+				.constant(R.over(State.表情列表lens, R.remove(index, 1)))
+			;
+		})
+		.switchLatest()
+	;
+
 	return {
 		新建$,
-		编辑$
+		编辑$,
+		删除$
 	};
 });
 
@@ -101,6 +124,7 @@ const main = R.curry((source, sidebarState$) => {
 		})
 		.merge(Action.新建$)
 		.merge(Action.编辑$)
+		.merge(Action.删除$)
 	;
 
 	const DOM$ = state$
