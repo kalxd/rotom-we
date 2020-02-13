@@ -34,7 +34,7 @@ const intent = R.curry((source, sidebarState$) => {
 			const dropdownState = DropdownState.生于SidebarState(sidebarState);
 			return EmojiFormW(null, dropdownState)
 				.concatMap(State.新建表情(state))
-				.map(x => R.over(State.表情分表lens, R.append(x)))
+				.map(x => R.over(State.表情列表lens, R.append(x)))
 			;
 		})
 		.switchLatest()
