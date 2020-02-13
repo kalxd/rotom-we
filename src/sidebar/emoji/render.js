@@ -46,7 +46,6 @@ const renderCard = R.curry((emoji, index) => {
 // render :: EmojiState -> View
 const render = state => {
 	const 表情列表 = R.view(State.表情列表lens, state);
-	console.info(state);
 
 	return dom.div(".ui.teal.segment", [
 		搜索表单(state),

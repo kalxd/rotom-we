@@ -86,7 +86,6 @@ const main = R.curry((source, sidebarState$) => {
 			const 当前分组 = SidebarState.选中分组(state);
 			return [fetch, 当前分组];
 		})
-		.tap(console.info)
 		.filter(R.nth(1))
 		.skipRepeatsWith((x, y) => x[1] === y[1])
 	;
@@ -104,7 +103,7 @@ const main = R.curry((source, sidebarState$) => {
 		.merge(Action.编辑$)
 	;
 
-	const DOM$ = state$.tap(console.warn)
+	const DOM$ = state$
 		.map(render)
 		.startWith(null)
 	;
