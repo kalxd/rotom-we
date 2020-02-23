@@ -4,6 +4,8 @@ const Most = require("most");
 const EmojiFormW = require("../widget/emojiform");
 const { nodeIndex } = require("XGLib/effect");
 const ConfirmW = require("XGWidget/confirm");
+const LoadState = require("XGState/load");
+const LoadW = require("../widget/load");
 
 const State = require("./state");
 const DropdownState = require("../widget/dropdown/state");
@@ -102,7 +104,7 @@ const main = R.curry((source, sidebarState$) => {
 	const state$ = source.state.stream;
 	const Action = intent(source, sidebarState$);
 
-	// 分组切换 :: Stream (a -> EmojiAppState)
+	// 分组切换 :: Stream (FetchReader, Maybe Group)
 	const 分组切换$ = sidebarState$
 		.map(state => {
 			const fetch = R.view(SidebarState.fetchlens, state);
@@ -113,12 +115,14 @@ const main = R.curry((source, sidebarState$) => {
 		.skipRepeatsWith((x, y) => x[1] === y[1])
 	;
 
-	// state :: Stream (EmojiAppState -> EmojiAppState)
+	// state :: Stream (LoadState EmojiAppState -> LoadState EmojiAppState)
 	const state = 分组切换$
 		.map(R.apply(State.生成))
 		.concatMap(state => {
 			return State.获取表情列表(state)
 				.map(xs => R.set(State.表情列表lens, xs, state))
+				.map(LoadState.pure)
+				.startWith(LoadState.empty)
 				.map(R.always)
 			;
 		})
@@ -128,7 +132,8 @@ const main = R.curry((source, sidebarState$) => {
 	;
 
 	const DOM$ = state$
-		.map(render)
+		.map(LoadState.fmap(render))
+		.map(LoadW.render)
 		.startWith(null)
 	;
 

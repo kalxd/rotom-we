@@ -1,13 +1,12 @@
 {
 	"manifest_version": 2,
 	"name": "rotom-we",
-	"version": "0.1.0",
+	"version": "0.3.0",
 	"author": "XG.Ley",
-	"description": "嘻嘻哈哈发表情。",
+	"description": "在线表情管理。",
 	"permissions": [
 		"<all_urls>",
-		"storage",
-		"clipboardWrite"
+		"storage"
 	],
 	"icons": {
 		"48": "static/icon/icon48.png"
@@ -22,6 +21,6 @@
 			"32": "static/icon/icon48.png"
 		},
 		"default_panel": "html/sidebar.html",
-		"default_title": "斗个开心"
+		"default_title": "在线表情"
 	}
 }
