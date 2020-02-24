@@ -116,18 +116,29 @@ const intent = R.curry((source, sidebarState$) => {
 		.combine(R.pair, 点击删除$.map(nodeIndex))
 		.sampleWith(点击删除$)
 		.map(([state, index]) => {
-			return ConfirmW.show_("确认删除该表情？")
-				.concatMap(_ => {
-					const lens = R.compose(
-						State.表情列表lens,
-						R.lensIndex(index)
-					);
+			if (LoadState.是否完成(state)) {
+				return Most.of(state)
+					.map(R.view(LoadState.内容lens))
+					.concatMap(state => {
+						return ConfirmW.show_("确认删除该表情？")
+							.concatMap(_ => {
+								const lens = R.compose(
+									State.表情列表lens,
+									R.lensIndex(index)
+								);
 
-					const 表情 = R.view(lens, state);
-					return State.删除表情(state, 表情);
-				})
-				.constant(R.over(State.表情列表lens, R.remove(index, 1)))
-			;
+								const 表情 = R.view(lens, state);
+								return State.删除表情(state, 表情);
+							})
+							.constant(R.over(State.表情列表lens, R.remove(index, 1)))
+							.map(LoadState.fmap)
+						;
+					})
+				;
+			}
+			else {
+				return Most.of(R.identity);
+			}
 		})
 		.switchLatest()
 	;
