@@ -5,6 +5,8 @@ const EmojiFormW = require("../widget/emojiform");
 const { nodeIndex } = require("XGLib/effect");
 const ConfirmW = require("XGWidget/confirm");
 const LoadState = require("XGState/load");
+const EmojiState = require("XGState/emoji");
+const GroupState = require("XGState/group");
 const LoadW = require("../widget/load");
 
 const State = require("./state");
@@ -65,19 +67,46 @@ const intent = R.curry((source, sidebarState$) => {
 		)
 		.sampleWith(点击编辑$)
 		.map(([state, cardEl, sidebarState]) => {
-			const index = nodeIndex(cardEl);
-			const lens = R.compose(
-				State.表情列表lens,
-				R.lensIndex(index)
-			);
+			if (LoadState.是否完成(state)) {
+				return Most.of(state)
+					.map(R.view(LoadState.内容lens))
+					.concatMap(state => {
+						const index = nodeIndex(cardEl);
+						const lens = R.compose(
+							State.表情列表lens,
+							R.lensIndex(index)
+						);
 
-			const 旧表情 = R.view(lens, state);
-			const dropdownState = DropdownState.生于SidebarState(sidebarState);
+						const 旧表情 = R.view(lens, state);
+						const dropdownState = DropdownState.生于SidebarState(sidebarState);
 
-			return EmojiFormW(旧表情, dropdownState)
-				.concatMap(State.更新表情(state, 旧表情))
-				.map(R.set(lens))
-			;
+						return EmojiFormW(旧表情, dropdownState)
+							.concatMap(State.更新表情(state, 旧表情))
+							.map(新表情 => {
+								const 新表情id = R.view(EmojiState.分组idlens, 新表情);
+								const 现在分组id = R.view(
+									R.compose(
+										State.当前分组lens,
+										GroupState.idlens
+									),
+									state
+								);
+
+								if (新表情id === 现在分组id) {
+									return R.set(lens, 新表情);
+								}
+								else {
+									return R.over(State.表情列表lens, R.remove(index, 1));
+								}
+							})
+							.map(LoadState.fmap)
+						;
+					})
+				;
+			}
+			else {
+				return Most.of(R.identity);
+			}
 		})
 		.switchLatest()
 	;
@@ -143,7 +172,6 @@ const main = R.curry((source, sidebarState$) => {
 	;
 
 	const DOM$ = state$
-		.tap(console.info)
 		.map(LoadState.fmap(render))
 		.map(LoadW.render)
 		.startWith(null)
