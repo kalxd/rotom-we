@@ -16,6 +16,9 @@ const 已完成lens = R.lensProp("已完成");
 // 内容lens :: Lens (LoadState a) a
 const 内容lens = R.lensProp("内容");
 
+// 是否完在 :: LoadState -> Bool
+const 是否完成 = R.view(已完成lens);
+
 // empty :: LoadState a
 const empty = {
 	已完成: false,
@@ -41,6 +44,7 @@ const pure = a => ({
 module.exports = {
 	已完成lens,
 	内容lens,
+	是否完成,
 	empty,
 	fmap,
 	pure

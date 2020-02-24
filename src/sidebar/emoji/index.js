@@ -30,20 +30,31 @@ const intent = R.curry((source, sidebarState$) => {
 		.map(e => e.target.parentNode.parentNode)
 	;
 
-	// 新建$ :: Stream (EmojiState -> EmojiState)
+	// 新建$ :: Stream (LoadState EmojiState -> LoadState EmojiState)
 	const 新建$ = 点击新建$
 		.sample(R.pair, state$, sidebarState$)
 		.map(([state, sidebarState]) => {
-			const dropdownState = DropdownState.生于SidebarState(sidebarState);
-			return EmojiFormW(null, dropdownState)
-				.concatMap(State.新建表情(state))
-				.map(x => R.over(State.表情列表lens, R.append(x)))
-			;
+			if (LoadState.是否完成(state)) {
+				return Most.of(state)
+					.map(R.view(LoadState.内容lens))
+					.concatMap(state => {
+						const dropdownState = DropdownState.生于SidebarState(sidebarState);
+						return EmojiFormW(null, dropdownState)
+							.concatMap(State.新建表情(state))
+							.map(x => R.over(State.表情列表lens, R.append(x)))
+							.map(LoadState.fmap)
+						;
+					})
+				;
+			}
+			else {
+				return Most.of(R.identity);
+			}
 		})
 		.switchLatest()
 	;
 
-	// 编辑$ :: Stream (EmojiState -> EmojiState)
+	// 编辑$ :: Stream (LoadState EmojiState -> LoadState EmojiState)
 	const 编辑$ = Most.combineArray(
 			(...xs) => xs,
 			[
@@ -71,7 +82,7 @@ const intent = R.curry((source, sidebarState$) => {
 		.switchLatest()
 	;
 
-	// 删除$ :: Stream EmojiAppState -> EmojiAppState
+	// 删除$ :: Stream (LoadState EmojiAppState -> LoadState EmojiAppState)
 	const 删除$ = state$
 		.combine(R.pair, 点击删除$.map(nodeIndex))
 		.sampleWith(点击删除$)
@@ -132,6 +143,7 @@ const main = R.curry((source, sidebarState$) => {
 	;
 
 	const DOM$ = state$
+		.tap(console.info)
 		.map(LoadState.fmap(render))
 		.map(LoadW.render)
 		.startWith(null)
