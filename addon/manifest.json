@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "rotom-we",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"author": "XG.Ley",
 	"description": "在线表情管理。",
 	"permissions": [
@@ -17,8 +17,7 @@
 	},
 	"sidebar_action": {
 		"default_icon": {
-			"16": "static/icon/icon48.png",
-			"32": "static/icon/icon48.png"
+			"48": "static/icon/icon48.png"
 		},
 		"default_panel": "html/sidebar.html",
 		"default_title": "在线表情"
