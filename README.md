@@ -1,10 +1,11 @@
-# rotom-we
+# rotom-we #
 
-# 图标来源
+普普通通在线表情管理。
 
-* 下载地址：[http://www.iconarchive.com/show/square-animal-icons-by-martin-berube/Crab-icon.html](http://www.iconarchive.com/show/square-animal-icons-by-martin-berube/Crab-icon.html)
-* 作者主页：[http://www.how-to-draw-funny-cartoons.com/](http://www.how-to-draw-funny-cartoons.com/)
+# 安装 #
 
-# 协议
+前往[火狐扩展](https://addons.mozilla.org/zh-CN/firefox/addon/rotom-we/)
+
+# 协议 #
 
 GPL v3

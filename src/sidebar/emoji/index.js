@@ -32,6 +32,27 @@ const intent = R.curry((source, sidebarState$) => {
 		.map(e => e.target.parentNode.parentNode)
 	;
 
+	// 搜索词$ :: Stream String
+	const 搜索词$ = source.DOM$.select(".__search__")
+		.events("keyup")
+		.debounce(200)
+		.map(e => e.target.value.trim())
+		.skipRepeats()
+	;
+
+	// 重置搜索词$ :: Stream String
+	const 重置搜索词$ = source.DOM$.select(".__reset__")
+		.events("click")
+		.constant("")
+	;
+
+	// 搜索$ :: Stream (LoadState EmojiState -> LoadState EmojiState)
+	const 搜索$ = 搜索词$
+		.merge(重置搜索词$)
+		.map(R.set(State.搜索词lens))
+		.map(LoadState.fmap)
+	;
+
 	// 新建$ :: Stream (LoadState EmojiState -> LoadState EmojiState)
 	const 新建$ = 点击新建$
 		.sample(R.pair, state$, sidebarState$)
@@ -146,7 +167,8 @@ const intent = R.curry((source, sidebarState$) => {
 	return {
 		新建$,
 		编辑$,
-		删除$
+		删除$,
+		搜索$
 	};
 });
 
@@ -180,6 +202,7 @@ const main = R.curry((source, sidebarState$) => {
 		.merge(Action.新建$)
 		.merge(Action.编辑$)
 		.merge(Action.删除$)
+		.merge(Action.搜索$)
 	;
 
 	const DOM$ = state$
