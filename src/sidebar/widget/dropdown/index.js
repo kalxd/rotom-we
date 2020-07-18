@@ -6,8 +6,16 @@ const render = require("./render");
 const intent = source => {
 	const 选择$ = source.DOM$.select(".__item__")
 		.events("click")
-		.map(e => e.target.dataset.index)
-		.map(Number)
+		.map(e => {
+			const el = e.target;
+			if (el.classList.contains("__item__")) {
+				return el;
+			}
+			else {
+				return el.parentNode;
+			}
+		})
+		.map(el => Number(el.dataset.index))
 		.skipRepeats()
 	;
 
