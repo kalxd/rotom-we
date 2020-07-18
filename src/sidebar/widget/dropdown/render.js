@@ -57,17 +57,17 @@ const 显示文本 = state => {
 
 // 显示分组 :: Group -> Int -> View
 const 显示分组 = R.curry((分组, index) => {
-	const [_, 名字] = GroupState.常用字段(分组);
+	const [_, 名字, __, 数量] = GroupState.常用字段(分组);
+	const o = {
+		dataset: {
+			index
+		}
+	};
 
-	return dom.div(
-		".item.__item__",
-		{
-			dataset: {
-				index
-			}
-		},
-		名字
-	);
+	return dom.div(".item.__item__", o, [
+		dom.div(".description", 数量),
+		dom.div(".text", 名字)
+	]);
 });
 
 // render :: State -> View

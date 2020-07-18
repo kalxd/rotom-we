@@ -5,6 +5,7 @@ const R = require("ramda");
  * 				, 名字 :: String
  * 				, 用户id :: Int
  * 				, 创建日期 :: Date
+ * 				, 数量 :: Int
  * 				}
  */
 
@@ -20,8 +21,11 @@ const 用户idlens = R.lensProp("用户id");
 // 创建日期lens :: Lens Group Date
 const 创建日期lens = R.lensProp("创建日期");
 
-// 常用字段 :: Group -> (Int, String, Date)
-const 常用字段 = R.props(["id", "名字", "创建日期"]);
+// 数量lens :: Lens Group Int
+const 数量lens = R.lensProp("数量");
+
+// 常用字段 :: Group -> (Int, String, Date, Int)
+const 常用字段 = R.props(["id", "名字", "创建日期", "数量"]);
 
 // 就是这个 :: Int -> Group -> Bool
 const 就是这个 = R.propEq("id");
@@ -46,6 +50,7 @@ module.exports = {
 	名字lens,
 	用户idlens,
 	创建日期lens,
+	数量lens,
 	常用字段,
 	就是这个,
 
